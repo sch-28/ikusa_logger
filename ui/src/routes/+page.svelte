@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { events, os } from '@neutralinojs/lib';
+	import { Toggle } from 'flowbite-svelte';
+	import Button from '../svelte-ui/elements/button.svelte';
+	import { goto } from '$app/navigation';
 
 	async function spawn() {
 		let pingProc = await os.spawnProcess('logger\\main -r');
@@ -20,8 +23,16 @@
 			}
 		});
 	}
-	spawn();
+	/* spawn(); */
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<div class="flex flex-col items-center justify-center gap-2">
+	<Button class="w-32">Sniff</Button>
+	<Button class="w-32" on:click={() => goto('/record')}>Record</Button>
+	<Button class="w-32" on:click={() => goto('/open')}>Open</Button>
+
+	<p class="text-red-500 mt-4 text-center">
+		The config file is older than 7 days. It might not work anymore.
+	</p>
+	<Button size="sm" color="secondary">Create Config</Button>
+</div>
