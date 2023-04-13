@@ -10,11 +10,13 @@
 	"modes": {
 		"window": {
 			"title": "Combat Logger",
-			"width": 800,
-			"height": 500,
-			"minWidth": 400,
-			"minHeight": 200,
-			"icon": "/ui/static/favicon.png"
+			"width": 500,
+			"height": 400,
+			"minWidth": 500,
+			"minHeight": 400,
+			"maxWidth": 500,
+			"maxHeight": 400,
+			"icon": "/ui/static/logo.png"
 		}
 	},
 	"cli": {
