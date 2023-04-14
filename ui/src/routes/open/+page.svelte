@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import Button from '../../svelte-ui/elements/button.svelte';
 	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
+	import { start_logger, type LoggerCallback } from '../../logic/logger-wrapper';
 	let log_container: HTMLElement;
 	let logger_process: os.SpawnedProcess | null = null;
 	let logs: string[] = [];
@@ -32,16 +33,27 @@
 			});
 	}
 
+	const logger_callback:LoggerCallback = (data, status) => {
+		if(status === 'running'){
+			loading = true;
+			scroll();
+			parse_log(data);
+		}else{
+			loading = false;
+		}
+	}
+
 	async function open_file() {
 		let entries = await os.showOpenDialog('Open a diagram', {
 			defaultPath: '.',
 			filters: [{ name: 'Network File', extensions: ['pcap', 'npcap'] }]
 		});
 
-		await spawn(entries[0]);
+		/* await spawn(entries[0]); */
+		start_logger(logger_callback, 'open_file', entries[0])
 	}
 
-	function handle_process(evt: CustomEvent) {
+	/* function handle_process(evt: CustomEvent) {
 		if (logger_process && logger_process.id == evt.detail.id) {
 			switch (evt.detail.action) {
 				case 'stdOut':
@@ -67,7 +79,7 @@
 	async function spawn(file: string) {
 		logger_process = await os.spawnProcess('logger\\main -f ' + file);
 		events.on('spawnedProcess', handle_process);
-	}
+	} */
 </script>
 
 <Button size="sm" class="mb-2 shrink-0" on:click={open_file}>Open File</Button>
