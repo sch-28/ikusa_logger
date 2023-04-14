@@ -9,9 +9,7 @@ function handle_process(evt: CustomEvent) {
 				break;
 			case 'stdErr':
 				console.error(evt.detail.data);
-				logger = null;
 				callback?.(evt.detail.data.trim(), 'error');
-				events.off('spawnedProcess', handle_process);
 				break;
 			case 'exit':
 				console.log(`Logger process terminated with exit code: ${evt.detail.data}`);
