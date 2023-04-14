@@ -1,6 +1,7 @@
 from time import localtime, strftime
 from . import config
 from scapy.all import wrpcap
+import os
 
 def dec(bytes):
     message = str(bytes, "latin-1")
@@ -80,6 +81,10 @@ def package_handler(package, output, record=False):
                 log = f"[{timestamp}] {player_one} died to {player_two} from {guild}"
 
             print(log, flush=True)
+            directory = os.path.dirname(output)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
             with open(output, "a") as file:
                 try:
                     file.write(log + "\n")
