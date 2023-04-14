@@ -1,1 +1,1 @@
-pyinstaller main.spec
+pyinstaller logger.spec
