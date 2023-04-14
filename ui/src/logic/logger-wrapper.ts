@@ -5,12 +5,12 @@ function handle_process(evt: CustomEvent) {
 		switch (evt.detail.action) {
 			case 'stdOut':
 				console.log(evt.detail.data);
-				callback?.(evt.detail.data, 'running');
+				callback?.(evt.detail.data.trim(), 'running');
 				break;
 			case 'stdErr':
 				console.error(evt.detail.data);
 				logger = null;
-				callback?.(evt.detail.data, 'terminated');
+				callback?.(evt.detail.data.trim(), 'error');
 				events.off('spawnedProcess', handle_process);
 				break;
 			case 'exit':
@@ -33,18 +33,19 @@ const arg_mapping = {
 
 let logger: os.SpawnedProcess | null = null;
 
-export type LoggerCallback = (data: string, status: 'running' | 'terminated') => void;
+export type LoggerCallback = (data: string, status: 'running' | 'terminated' | 'error') => void;
 let callback: LoggerCallback | null = null;
 
 export async function start_logger(
 	clb: LoggerCallback,
 	arg: keyof typeof arg_mapping,
-	data: string
+	data?: string
 ) {
 	if (logger) {
 		await os.updateSpawnedProcess(logger.id, 'exit');
 	}
-	logger = await os.spawnProcess('logger\\dist\\logger\\logger ' + arg_mapping[arg] + ' ' + data);
+	const extra_args = data ? ' ' + data : '';
+	logger = await os.spawnProcess('logger\\dist\\logger\\logger ' + arg_mapping[arg] + extra_args);
 	callback = clb;
 	events.on('spawnedProcess', handle_process);
 }
