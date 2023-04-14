@@ -38,7 +38,7 @@ elif args.filename != None:
     open.open_pcap(args.filename, args.output)
     exit()
 elif args.update:
-    update_config.update_config("config.ini")
+    update_config.update_config()
 else:
     sniff.start_sniff(args.output)
     exit()
