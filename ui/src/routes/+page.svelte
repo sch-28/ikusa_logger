@@ -6,10 +6,11 @@
 	import { onMount } from 'svelte';
 	import { start_logger, type LoggerCallback } from '../logic/logger-wrapper';
 	import LoadingIndicator from '../svelte-ui/elements/loading-indicator.svelte';
+	import { check_status, type LoggerStatus } from '../logic/logger-status';
 
 	let loading = false;
-
-	let current_errors: (typeof error_message_mapping)[keyof typeof error_message_mapping][] = [];
+	let status: LoggerStatus;
+	/* let current_errors: (typeof error_message_mapping)[keyof typeof error_message_mapping][] = [];
 
 	const error_message_mapping = {
 		'Npcap is not installed': 'Npcap is not installed',
@@ -37,11 +38,13 @@
 		} else if (status === 'terminated') {
 			loading = false;
 		}
-	};
+	}; */
 
-	onMount(() => {
+	onMount(async () => {
 		loading = true;
-		start_logger(logger_callback, 'status');
+		/* start_logger(logger_callback, 'status'); */
+		status = await check_status();
+		loading = false;
 	});
 </script>
 
@@ -50,17 +53,22 @@
 	<Button class="w-32" on:click={() => goto('/record')}>Record</Button>
 	<Button class="w-32" on:click={() => goto('/open')}>Open</Button>
 
-	<div class="h-8  mt-4 text-center">
-		{#if loading}
+	<div class="min-h-[32px] mt-4 text-center">
+		{#if loading || !status}
 			<LoadingIndicator />
-		{:else if current_errors.length === 0}
+		{:else if status.npcap_installed && status.config_valid && status.config_up_to_date}
 			<p class="text-submarine-500">Config is up to date</p>
 		{:else}
-			{#each current_errors as error}
-				<p class="text-red-500">{error}</p>
-				<br />
-			{/each}
+			{#if !status.npcap_installed}
+				<p class="text-red-500">Npcap is not installed</p>
+			{/if}
+			{#if !status.config_valid}
+				<p class="text-red-500">No config found</p>
+			{/if}
+			{#if !status.config_up_to_date}
+				<p class="text-red-500">Config is outdated</p>
+			{/if}
 		{/if}
 	</div>
-	<Button size="sm" color="secondary">Update Config</Button>
+	<Button size="sm" color="secondary" on:click={() => goto('/update-config')}>Update Config</Button>
 </div>
