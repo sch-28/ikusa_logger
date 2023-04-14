@@ -7,7 +7,8 @@
 	import { start_logger, type LoggerCallback } from '../logic/logger-wrapper';
 	import LoadingIndicator from '../svelte-ui/elements/loading-indicator.svelte';
 	import { check_status, type LoggerStatus } from '../logic/logger-status';
-
+	import GoMarkGithub from 'svelte-icons/go/GoMarkGithub.svelte';
+	import Icon from '../svelte-ui/elements/icon.svelte';
 	let loading = false;
 	let status: LoggerStatus;
 	/* let current_errors: (typeof error_message_mapping)[keyof typeof error_message_mapping][] = [];
@@ -71,4 +72,12 @@
 		{/if}
 	</div>
 	<Button size="sm" color="secondary" on:click={() => goto('/update-config')}>Update Config</Button>
+</div>
+
+<div class="w-full flex justify-between absolute bottom-0 p-2 text-sm">
+	<p>Made by <b>ORACLE#7672</b></p>
+
+	<button on:click={() => os.execCommand('start https://github.com/sch-28/ikusa')}
+		><Icon icon={GoMarkGithub} /></button
+	>
 </div>
