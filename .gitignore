@@ -15,3 +15,5 @@ neutralino.js
 .venv
 .tmp
 __pycache__
+dist
+build
