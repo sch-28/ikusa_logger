@@ -7,5 +7,6 @@ def update_config():
     config.init()
     if(status_check.is_outdated()):
         print("The config is still outdated. Please update it manually.", flush=True)
-    
+    else:
+        print("The config was updated successfully.", flush=True)
     
