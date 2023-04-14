@@ -8,13 +8,13 @@ from argparse import ArgumentParser, BooleanOptionalAction
 from datetime import date
 import os.path
 import os
-
+from sys import exit
 
 parser = ArgumentParser()
 parser.add_argument("-f", "--file", dest="filename",
                     help="Instead of sniffing for bdo packages, it will use the given *.pcap file", metavar="FILE")
 parser.add_argument("-o", "--output",
-                    default=f"{date.today()}.log",
+                    default=f"logger/.tmp/{date.today()}.log",
                     help="custom output file")
 parser.add_argument("-r", "--record",
                     help="Record all of BDO's traffic and save it to a pcap file", action= BooleanOptionalAction)
