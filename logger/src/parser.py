@@ -1,6 +1,6 @@
 from time import localtime, strftime
 from . import config
-
+from scapy.all import wrpcap
 
 def dec(bytes):
     message = str(bytes, "latin-1")
@@ -25,7 +25,7 @@ def extract_string(hex, offset, length):
 last_payload = ""
 
 
-def package_handler(package, output):
+def package_handler(package, output, record=False):
 
     global last_payload
 
@@ -41,8 +41,9 @@ def package_handler(package, output):
     uses_tcp = "TCP" in package and hasattr(package["TCP"].payload, "load")
     if is_bdo_ip and uses_tcp:
 
-        #if args.record:
-        #   wrpcap(args.output+".pcap", package, append=True)
+        if record:
+           wrpcap(output+".pcap", package, append=True)
+           return
 
         # loads the payload as raw hex
         payload = bytes(package["TCP"].payload).hex()
@@ -70,7 +71,7 @@ def package_handler(package, output):
                 payload, config.config.player_one_offset, config.config.name_length)
             player_two = extract_string(
                 payload, config.config.player_two_offset, config.config.name_length)
-            is_kill = payload[kill_offset: kill_offset+1] == "1"
+            is_kill = payload[config.config.kill_offset: config.config.kill_offset+1] == "1"
 
             log = ""
             if(is_kill):
