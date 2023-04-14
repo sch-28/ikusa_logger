@@ -9,9 +9,11 @@ class Config (object):
         
         if self.config.get("PACKAGE") == None:
             self.invalid = True
-            print("Invalid config file", flush=True)
             return
-        
+        else:
+            self.invalid = False
+            
+            
         # get ip addresses
         self.ips = list((self.config["IP"]).values())
 
