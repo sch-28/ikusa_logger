@@ -26,7 +26,8 @@ const arg_mapping = {
 	open_file: '-f',
 	status: '-s',
 	update: '-u',
-	record: '-r'
+	record: '-r',
+	analyze: '-a'
 } as const;
 
 let logger: os.SpawnedProcess | null = null;
@@ -43,6 +44,7 @@ export async function start_logger(
 		await os.updateSpawnedProcess(logger.id, 'exit');
 	}
 	const extra_args = data ? ' ' + data : '';
+	console.log('logger\\dist\\logger\\logger ' + arg_mapping[arg] + extra_args)
 	logger = await os.spawnProcess('logger\\dist\\logger\\logger ' + arg_mapping[arg] + extra_args);
 	callback = clb;
 	events.on('spawnedProcess', handle_process);
