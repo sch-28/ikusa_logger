@@ -1,5 +1,5 @@
 from src import config
-from src.options import status_check, open, sniff, record, update_config
+from src.options import status_check, open, sniff, record, update_config, analyze
 
 import time
 from time import localtime, strftime
@@ -22,6 +22,9 @@ parser.add_argument("-s", "--status",
                     help="Check the status of all requirements", action= BooleanOptionalAction)
 parser.add_argument("-u", "--update",
                     help="Update the config", action= BooleanOptionalAction)
+parser.add_argument("-a", "--analyze",
+                    help="Analyze network", action= BooleanOptionalAction)
+
 
 
 args = parser.parse_args()
@@ -34,11 +37,15 @@ if args.status:
 elif args.record:
     record.record(args.output)
     exit()
+
+elif args.update:
+    update_config.update_config()
+elif args.analyze and args.filename != None:
+    analyze.open_pcap(args.filename, args.output)
+    exit()
 elif args.filename != None:
     open.open_pcap(args.filename, args.output)
     exit()
-elif args.update:
-    update_config.update_config()
 else:
     sniff.start_sniff(args.output)
     exit()
