@@ -1,12 +1,24 @@
 <script lang="ts">
+	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { start_logger, type LoggerCallback } from '../../../logic/logger-wrapper';
 	import { open_file } from '../../../logic/open-file';
 	import Button from '../../../svelte-ui/elements/button.svelte';
 	import LoadingIndicator from '../../../svelte-ui/elements/loading-indicator.svelte';
+	import Icon from '../../../svelte-ui/elements/icon.svelte';
+	import GiBroadsword from 'svelte-icons/gi/GiBroadsword.svelte';
+	import GiSkullCrack from 'svelte-icons/gi/GiSkullCrack.svelte';
+	import MdDelete from 'svelte-icons/md/MdDelete.svelte';
+	import Select from './select.svelte';
 
-	let logs: { identifier: string; names: { name: string; offset: string }[]; hex: string }[] = [
+	let logs: {
+		identifier: string;
+		time: string;
+		names: { name: string; offset: string }[];
+		hex: string;
+	}[] = [
 		{
 			identifier: '6d01001d0d',
+			time: '08:01:34',
 			names: [
 				{
 					name: 'Chromatica',
@@ -33,6 +45,7 @@
 		},
 		{
 			identifier: '6d01001d0d',
+			time: '08:02:19',
 			names: [
 				{
 					name: 'Discipline',
@@ -59,6 +72,7 @@
 		},
 		{
 			identifier: '6d01001d0d',
+			time: '08:02:21',
 			names: [
 				{
 					name: 'Threat',
@@ -85,6 +99,7 @@
 		},
 		{
 			identifier: '6d01001d0d',
+			time: '08:02:42',
 			names: [
 				{
 					name: 'Threat',
@@ -111,6 +126,7 @@
 		},
 		{
 			identifier: '6d01001d0d',
+			time: '08:02:55',
 			names: [
 				{
 					name: 'Threat',
@@ -137,6 +153,7 @@
 		},
 		{
 			identifier: '6d01001d0d',
+			time: '08:02:59',
 			names: [
 				{
 					name: 'InUnderrated',
@@ -155,14 +172,15 @@
 					offset: '404'
 				},
 				{
-					name: 'Darquise',
-					offset: '552'
+					name: 'Vi_Darquise',
+					offset: '540'
 				}
 			],
 			hex: '6d01001d0d49006e55006e0064006500720072006100740065006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000580065007200610074006800690065006c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005a00650075007a0075000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffff000600000056006f006e0042006c0075006d0065006e0073007400650069006e00000000000000000000000000000000000000000000000000000000000000000000006812e6b26913560069005f00440061007200710075006900730065000000000000000000'
 		},
 		{
 			identifier: '6d01001d0d',
+			time: '08:03:03',
 			names: [
 				{
 					name: 'Discipline',
@@ -189,6 +207,7 @@
 		},
 		{
 			identifier: '6d01001d0d',
+			time: '08:03:04',
 			names: [
 				{
 					name: 'Discipline',
@@ -215,6 +234,7 @@
 		},
 		{
 			identifier: '6d01001d0d',
+			time: '08:03:07',
 			names: [
 				{
 					name: 'Amongers',
@@ -241,23 +261,55 @@
 		}
 	];
 
+	let player_one_index = 0;
+	let player_two_index = 1;
+	let guild_index = 2;
+
+	function update_names(target: 'player_one' | 'player_two' | 'guild', e: Event) {
+		if (target === 'player_one') {
+			const new_value = parseInt((e.target as HTMLSelectElement).value);
+			if (new_value === player_two_index) {
+				player_two_index = player_one_index;
+			} else if (new_value === guild_index) {
+				guild_index = player_one_index;
+			}
+			player_one_index = new_value;
+		} else if (target === 'player_two') {
+			const new_value = parseInt((e.target as HTMLSelectElement).value);
+			if (new_value === player_one_index) {
+				player_one_index = player_two_index;
+			} else if (new_value === guild_index) {
+				guild_index = player_two_index;
+			}
+			player_two_index = new_value;
+		} else if (target === 'guild') {
+			const new_value = parseInt((e.target as HTMLSelectElement).value);
+			if (new_value === player_one_index) {
+				player_one_index = guild_index;
+			} else if (new_value === player_two_index) {
+				player_two_index = guild_index;
+			}
+			guild_index = new_value;
+		}
+	}
 
 	const logger_callback: LoggerCallback = (data, status) => {
 		if (status === 'running') {
 			const d = data.split(',');
 			console.log(d);
-			if (d.length === 7) {
+			if (d.length === 8) {
 				logs.push({
 					identifier: d[0],
-					names: d.slice(1, 6).map((name) => {
+					time: d[1],
+					names: d.slice(2, 7).map((name) => {
 						const split = name.split(' ');
 						return { name: split[0], offset: split[1] };
 					}),
-					hex: d[6]
+					hex: d[7]
 				});
 				logs = logs;
 			}
-		} else if (status === 'error') {
+		} else if (status === ('error' as any)) {
 			console.error(data);
 		} else if (status === 'terminated') {
 			state = 'loaded';
@@ -282,26 +334,44 @@
 	{:else if state === 'loading'}
 		<LoadingIndicator />
 	{:else if state === 'loaded'}
-		<table class="text-left w-full">
-			<thead>
-				<tr>
-					<th>Guild</th>
-					<th>Enemy Char</th>
-					<th>Enemy Fam</th>
-					<th>Ally Char</th>
-					<th>Ally Fam</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each logs as log}
-					<tr>
-						{#each log.names as name}
-							<td>{name.name}</td>
-						{/each}
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+		<p>Adjust the names accordingly</p>
+		<div class="h-[264px] w-full overflow-auto">
+			<VirtualList items={logs} let:item={log}>
+				<div class="flex gap-1 group py-1 items-center">
+					<p class="text-sm text-gray-400">{log.time}:</p>
+					<!-- <p>{log.names[player_one_index].name}</p> -->
+					<Select
+						options={log.names.map((n) => n.name)}
+						selected_value={player_one_index}
+						on_change={(e) => update_names('player_one', e)}
+					/>
+					<div class="flex justify-center items-center">
+						{#if log.kill}
+							<p class="self-center text-submarine-500">killed</p>
+						{:else}
+							<p class="self-center text-red-500">died to</p>
+						{/if}
+					</div>
+					<!-- <p>{log.names[player_two_index].name}</p> -->
+					<Select
+						options={log.names.map((n) => n.name)}
+						selected_value={player_two_index}
+						on_change={(e) => update_names('player_two', e)}
+					/>
+					<!-- <p class="text-navy-400">[{log.names[guild_index].name}]</p> -->
+					<Select
+						options={log.names.map((n) => n.name)}
+						selected_value={guild_index}
+						on_change={(e) => update_names('guild', e)}
+					/>
+					<div class="ml-auto hidden group-hover:flex items-center">
+						<button on:click={() => null}>
+							<Icon icon={MdDelete} class="self-center text-red-500" />
+						</button>
+					</div>
+				</div>
+			</VirtualList>
+		</div>
 	{:else if state === 'live'}
 		<p>Config is being updated</p>
 		<Button class="w-32" on:click={() => (state = 'idle')}>Back</Button>
