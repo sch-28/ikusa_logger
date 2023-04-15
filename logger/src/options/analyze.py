@@ -42,7 +42,8 @@ def package_handler(package, output, record=False):
     package_src = package["IP"].src
 
     # checks if the package derives from bdo
-    is_bdo_ip = len(([ip for ip in ["20.76.13", "20.76.14"] if ip in package_src])) > 0
+    is_bdo_ip = len(
+        ([ip for ip in ["20.76.13", "20.76.14"] if ip in package_src])) > 0
 
     # chckes if the packages comes from a tcp stream
     uses_tcp = "TCP" in package and hasattr(package["TCP"].payload, "load")
@@ -50,7 +51,7 @@ def package_handler(package, output, record=False):
 
         # loads the payload as raw hex
         payload = bytes(package["TCP"].payload).hex()
-        
+
         # iterate through the payload and try to find the identifier + player names + guild name + kill
         payload = last_payload + payload
         position = 0
@@ -73,12 +74,15 @@ def package_handler(package, output, record=False):
                     else:
                         i += 1
                 if len(names) == 5:
-                    print(match.group(0)+","+','.join(names)+","+possible_log, flush=True)
+                    time = strftime("%I:%M:%S", localtime(int(package.time)))
+                    print(match.group(0)+","+time+","+','.join(names) +
+                          ","+possible_log, flush=True)
                 position = 600
             else:
                 position = 1
-        
-        last_payload = payload  
+
+        last_payload = payload
+
 
 def open_pcap(file, output):
     if file != None and not os.path.isfile(file):
