@@ -17,7 +17,7 @@ def open_pcap(file, output):
                 print(f"{index}/{len(cap)} packages analyzed.", flush=True)
             index += 1
     else:
-        sniff(offline=file, filter="tcp", prn=package_handler, store=0)
+        sniff(offline=file, filter="tcp", prn=parser.package_handler, store=0)
         
     print(f"Logs saved under: {output}\nYou can close this window now.", flush=True)
     
