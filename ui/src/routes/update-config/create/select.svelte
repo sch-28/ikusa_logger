@@ -1,6 +1,6 @@
 <script lang="ts">
-	export let selected_value: number = 0;
-	export let options: string[] = [];
+	export let selected_value: number|string = 0;
+	export let options: (string | number)[] = [];
 	export let on_change: (e: Event) => void = (e) => {};
 </script>
 
