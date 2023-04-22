@@ -20,6 +20,7 @@ def check_health():
         print("Could not locate config file or config is invalid", flush=True)
         return
 
+    print("The config is from the patch: " + config.config.patch, flush=True)
     
     if is_outdated():
         print("The config is older than 7 days. It might not work anymore. Try to update the config by using:\nlogger.exe -u", flush=True)
