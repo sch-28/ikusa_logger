@@ -8,8 +8,12 @@
 	import GiBroadsword from 'svelte-icons/gi/GiBroadsword.svelte';
 	import GiSkullCrack from 'svelte-icons/gi/GiSkullCrack.svelte';
 	import MdDelete from 'svelte-icons/md/MdDelete.svelte';
+	import IoMdInformationCircleOutline from 'svelte-icons/io/IoMdInformationCircleOutline.svelte';
 	import Select from './select.svelte';
 	import { find_all_indicies } from '../../../svelte-ui/util';
+	import { ModalManager } from '../../../svelte-ui/modal/modal-store';
+	import ConfigModal from './config.modal.svelte';
+	import type { Config } from '../config';
 
 	type LogType = {
 		identifier: string;
@@ -25,6 +29,20 @@
 
 	let possible_kill_offsets: string[] = [];
 	let kill_offset = 0;
+
+	let config: Config;
+
+	$: {
+		if (logs.length > 0) {
+			config = {
+				identifier: logs[0].identifier,
+				player_one: logs[0].names[player_one_index].offset,
+				player_two: logs[0].names[player_two_index].offset,
+				guild: logs[0].names[guild_index].offset,
+				kill: possible_kill_offsets[kill_offset]
+			};
+		}
+	}
 
 	function find_kill_offset(logs: LogType[]) {
 		const all_indicies: number[] = [];
@@ -126,6 +144,9 @@
 		<div class="flex gap-1 items-center justify-start w-full px-1">
 			<p class="w-16">Kill offset:</p>
 			<Select options={possible_kill_offsets} bind:selected_value={kill_offset} />
+			<button class="ml-auto" on:click={() => ModalManager.open(ConfigModal, { config: config })}>
+				<Icon icon={IoMdInformationCircleOutline} />
+			</button>
 		</div>
 		<div class="h-[185px] w-full overflow-auto">
 			<VirtualList items={logs} let:item={log}>
@@ -156,11 +177,11 @@
 						selected_value={guild_index}
 						on_change={(e) => update_names('guild', e)}
 					/>
-					<div class="ml-auto hidden group-hover:flex items-center">
+					<!-- <div class="ml-auto hidden group-hover:flex items-center">
 						<button on:click={() => null}>
 							<Icon icon={MdDelete} class="self-center text-red-500" />
 						</button>
-					</div>
+					</div> -->
 				</div>
 			</VirtualList>
 		</div>
