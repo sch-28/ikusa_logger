@@ -1,14 +1,15 @@
 <script lang="ts">
 	import Button from '../../svelte-ui/elements/button.svelte';
-	import { start_logger, type LoggerCallback } from '../../logic/logger-wrapper';
 	import { onMount } from 'svelte';
 	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
 	import { goto } from '$app/navigation';
-	import { check_status } from '../../logic/logger-status';
+	import { check_status, type LoggerStatus } from '../../logic/logger-status';
+	import { start_logger, type LoggerCallback } from '../../logic/logger-wrapper';
 
 	let loading = false;
 	let already_updated = false;
 	let outdated = false;
+	let logger_status: LoggerStatus;
 
 	const logger_callback: LoggerCallback = (data, status) => {
 		if (status === 'running') {
@@ -17,38 +18,46 @@
 			}
 		} else if (status === 'error') {
 			console.error(data);
-			loading = false;
 		} else if (status === 'terminated') {
-			loading = false;
+			check_status().then((status) => {
+				logger_status = status;
+				loading = false;
+			});
 		}
 	};
 
+	async function update() {
+		loading = true;
+		await start_logger(logger_callback, 'update');
+	}
+
 	onMount(async () => {
 		loading = true;
-		const status = await check_status();
+		logger_status = await check_status();
+		loading = false;
+		/* loading = true;
 		if (!status.config_up_to_date) {
 			await start_logger(logger_callback, 'update');
 		} else {
 			loading = false;
 			already_updated = true;
-		}
+		} */
 	});
 </script>
 
+
 {#if loading}
 	<LoadingIndicator />
-{:else if !outdated}
-	{#if already_updated}
+{:else if logger_status}
+	<p>The current config is from patch {logger_status.patch}</p>
+	{#if logger_status.config_up_to_date}
 		<p class="text-submarine-500">Config is already up to date</p>
 	{:else}
-		<p class="text-submarine-500">Config was updated successfully</p>
+		<p class="text-red-500">The config might be outdated</p>
 	{/if}
-	<Button on:click={() => goto('/')} class="mt-2" size="sm">Back</Button>
 
-	<p class="mt-auto">You can also manually update the config</p>
-	<Button class="w-32 mt-2" on:click={() => goto('/update-config/create')}>Update config</Button>
-{:else}
-	<p class="text-red-500 mb-2">The config is older than 7 days. It might not work anymore.</p>
-	<p>You can manually update the config</p>
-	<Button class="w-32 mt-2" on:click={() => goto('/update-config/create')}>Update config</Button>
+	<div class="flex flex-col gap-2 mt-2">
+		<Button class="w-32" on:click={update}>Download Config</Button>
+		<Button class="w-32" on:click={() => goto('/update-config/create')}>Create Config</Button>
+	</div>
 {/if}
