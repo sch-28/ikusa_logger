@@ -4,12 +4,14 @@ export type LoggerStatus = {
 	config_valid: boolean;
 	config_up_to_date: boolean;
 	something_else: string;
+	patch: string;
 };
 let logger_status: LoggerStatus = {
 	npcap_installed: false,
 	config_valid: false,
 	config_up_to_date: false,
-	something_else: ''
+	something_else: '',
+	patch: ''
 };
 
 let resolve: (value: LoggerStatus) => void;
@@ -37,7 +39,10 @@ const logger_callback: LoggerCallback = (data, status) => {
 			) {
 				logger_status.config_up_to_date = false;
 			}
+		}else if(data.includes('The config is from the patch: ')){
+			logger_status.patch = data.replace('The config is from the patch: ', '');
 		}
+
 	} else if (status === 'error') {
 		console.error(data);
 		logger_status.something_else = data;
@@ -52,7 +57,8 @@ export async function check_status(): Promise<LoggerStatus> {
 		npcap_installed: true,
 		config_valid: true,
 		config_up_to_date: true,
-		something_else: ''
+		something_else: '',
+		patch: ''
 	};
 	await start_logger(logger_callback, 'status');
 
