@@ -5,21 +5,28 @@
 
 	export let onChange: (config: Config) => void;
 
+	$: config = {
+		...config,
+		patch: config.patch ?? get_date()
+	};
+
 	function get_date() {
 		const today = new Date();
-		const formatter = new Intl.DateTimeFormat('de', {
+		/* const formatter = new Intl.DateTimeFormat('de', {
 			day: '2-digit',
 			month: '2-digit',
 			year: 'numeric'
 		});
-		return formatter.format(today).replace(/\//g, '.');
+		return formatter.format(today).replace(/\//g, '.'); */
+		const isoDate = today.toISOString().substr(0, 10);
+		return isoDate;
 	}
 </script>
 
 {#if config}
 	<pre class="text-sm">
 [GENERAL]
-patch = <input type="date" value={get_date()} on:change={() => onChange(config)} />
+patch = <input type="date" bind:value={config.patch} on:change={() => onChange(config)} class="!p-1 !rounded-lg" />
 [IP]
 server_1 = 20.76.13
 server_2 = 20.76.14

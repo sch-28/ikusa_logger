@@ -35,6 +35,7 @@
 	$: {
 		if (logs.length > 0) {
 			config = {
+				...config,
 				identifier: logs[0].identifier,
 				player_one: logs[0].names[player_one_index].offset,
 				player_two: logs[0].names[player_two_index].offset,
