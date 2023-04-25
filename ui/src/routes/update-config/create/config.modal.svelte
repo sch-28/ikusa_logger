@@ -3,6 +3,8 @@
 
 	export let config: Config;
 
+	export let onChange: (config: Config) => void;
+
 	function get_date() {
 		const today = new Date();
 		const formatter = new Intl.DateTimeFormat('de', {
@@ -17,7 +19,7 @@
 {#if config}
 	<pre class="text-sm">
 [GENERAL]
-patch = {get_date()}
+patch = <input type="date" value={get_date()} on:change={() => onChange(config)} />
 [IP]
 server_1 = 20.76.13
 server_2 = 20.76.14
