@@ -1,7 +1,7 @@
 export type Config = {
 	identifier: string;
-	player_one: number | string;
-	player_two: number | string;
-	guild: number | string;
-	kill: number | string;
+	player_one: number;
+	player_two: number;
+	guild: number;
+	kill: number ;
 };

@@ -27,7 +27,7 @@
 	let player_two_index = 1;
 	let guild_index = 2;
 
-	let possible_kill_offsets: string[] = [];
+	let possible_kill_offsets: number[] = [];
 	let kill_offset = 0;
 
 	let config: Config;
@@ -42,6 +42,10 @@
 				kill: possible_kill_offsets[kill_offset]
 			};
 		}
+	}
+
+	function on_config_change(new_config: Config) {
+		config = new_config;
 	}
 
 	function find_kill_offset(logs: LogType[]) {
@@ -120,7 +124,7 @@
 		} else if (status === 'terminated') {
 			state = 'loaded';
 			console.log(logs);
-			possible_kill_offsets = find_kill_offset(logs).map((offset) => offset.toString());
+			possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
 		}
 	};
 
@@ -144,7 +148,14 @@
 		<div class="flex gap-1 items-center justify-start w-full px-1">
 			<p class="w-16">Kill offset:</p>
 			<Select options={possible_kill_offsets} bind:selected_value={kill_offset} />
-			<button class="ml-auto" on:click={() => ModalManager.open(ConfigModal, { config: config })}>
+			<button
+				class="ml-auto"
+				on:click={() =>
+					ModalManager.open(ConfigModal, {
+						config: config,
+						onChange: on_config_change
+					})}
+			>
 				<Icon icon={IoMdInformationCircleOutline} />
 			</button>
 		</div>
