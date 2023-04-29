@@ -6,7 +6,7 @@
 	"url": "/",
 	"enableServer": true,
 	"enableNativeAPI": true,
-	"nativeAllowList": ["app.*", "filesystem.*", "os.*"],
+	"nativeAllowList": ["app.*", "filesystem.*", "os.*", "clipboard.writeText"],
 	"modes": {
 		"window": {
 			"title": "Combat Logger",
