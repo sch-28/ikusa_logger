@@ -102,6 +102,7 @@
 			} else if (new_value === player_two_index) {
 				player_two_index = guild_index;
 			}
+			guild_index = new_value;
 		}
 	}
 
