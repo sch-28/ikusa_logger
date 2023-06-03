@@ -50,7 +50,6 @@
 </script>
 
 <div class="flex flex-col items-center justify-center gap-2">
-	<Button class="w-32">Sniff</Button>
 	<Button class="w-32" on:click={() => goto('/record')}>Record</Button>
 	<Button class="w-32" on:click={() => goto('/open')}>Open</Button>
 
@@ -71,7 +70,6 @@
 			{/if}
 		{/if}
 	</div>
-	<Button size="sm" color="secondary" on:click={() => goto('/update-config')}>Update Config</Button>
 </div>
 
 <div class="w-full flex justify-between absolute bottom-0 p-2 text-sm">

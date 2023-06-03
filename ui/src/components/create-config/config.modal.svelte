@@ -1,9 +1,8 @@
 <script lang="ts">
-	import Icon from '../../../svelte-ui/elements/icon.svelte';
-
 	import IoMdClipboard from 'svelte-icons/io/IoMdClipboard.svelte';
-	import type { Config } from '../config';
 	import { clipboard } from '@neutralinojs/lib';
+	import type { Config } from '@sveltejs/kit';
+	import Icon from '../../svelte-ui/elements/icon.svelte';
 
 	export let config: Config;
 

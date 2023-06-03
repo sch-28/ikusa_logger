@@ -24,7 +24,7 @@
 		<div class="h-screen p-4 w-full max-w-7xl mx-auto">
 			<Header />
 			<div
-				class="mt-6 flex flex-col items-center"
+				class="mt-8 flex flex-col items-center"
 				bind:this={container}
 				style="height: {get_remaining_height(container, 16)}px;"
 			>
