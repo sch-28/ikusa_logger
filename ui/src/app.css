@@ -2,16 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-	font-family: 'Oswald';
-	src: url('/Oswald.ttf');
-	font-weight: normal;
-	font-style: normal;
-}
-
 html {
-	font-family: 'Oswald';
-	@apply text-gold bg-black;
+	font-family: monospace;
+	@apply text-foreground-secondary bg-background text-sm;
 	color-scheme: dark;
 }
 
@@ -29,7 +22,7 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-	@apply bg-gold rounded-lg;
+	@apply bg-foreground-secondary rounded-lg;
 }
 
 [type='text'],
