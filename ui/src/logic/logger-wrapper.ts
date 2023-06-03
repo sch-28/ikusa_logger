@@ -41,10 +41,15 @@ export async function start_logger(
 	data?: string
 ) {
 	if (logger) {
-		await os.updateSpawnedProcess(logger.id, 'exit');
+		try {
+			await os.updateSpawnedProcess(logger.id, 'exit');
+		} catch (e) {
+			console.error(e);
+		}
 	}
+	await os.execCommand("taskkill /F /IM logger.exe ")
+
 	const extra_args = data ? ' ' + data : '';
-	console.log('logger\\dist\\logger\\logger ' + arg_mapping[arg] + extra_args)
 	logger = await os.spawnProcess('logger\\dist\\logger\\logger ' + arg_mapping[arg] + extra_args);
 	callback = clb;
 	events.on('spawnedProcess', handle_process);
