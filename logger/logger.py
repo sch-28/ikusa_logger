@@ -43,6 +43,9 @@ elif args.update:
 elif args.analyze and args.filename != None:
     analyze.open_pcap(args.filename, args.output)
     exit()
+elif args.analyze:
+    analyze.start_sniff(args.output)
+    exit()
 elif args.filename != None:
     open.open_pcap(args.filename, args.output)
     exit()

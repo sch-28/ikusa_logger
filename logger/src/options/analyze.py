@@ -15,15 +15,14 @@ def extract_string(hex, offset, length):
     # check whether the string begins with a 0x00, if so, return -1
     if hex[offset:offset+2] == "00":
         return -1
-    
+
     # check whether the characters are always spaced by 2 bytes (0x00), if not, return -1
     test_offset = offset + 2
     while test_offset < offset + length-2:
         if hex[test_offset:test_offset+2] != "00":
             return -1
         test_offset += 4
-        
-    
+
     try:
         length = min(len(hex)-offset, length)
         if length < 0:
@@ -31,7 +30,7 @@ def extract_string(hex, offset, length):
 
         return dec(bytes.fromhex(hex[offset:offset+length]))
     except ValueError as e:
-        #print(e, flush=True)
+        # print(e, flush=True)
         return -1
 
 
@@ -55,7 +54,7 @@ def package_handler(package, output, record=False):
     is_bdo_ip = len(
         ([ip for ip in ["20.76.13", "20.76.14"] if ip in package_src])) > 0
 
-    # chckes if the packages comes from a tcp stream
+    # checkes if the packages comes from a tcp stream
     uses_tcp = "TCP" in package and hasattr(package["TCP"].payload, "load")
     if is_bdo_ip and uses_tcp:
 
@@ -113,3 +112,8 @@ def open_pcap(file, output):
 
     print(
         f"Logs saved under: {output}\nYou can close this window now.", flush=True)
+
+
+def start_sniff(output):
+    print("Reading Network...", flush=True)
+    sniff(filter="tcp", prn=lambda x: package_handler(x, output), store=0)
