@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { init, events, os } from '@neutralinojs/lib';
+	import { init, events, os, app } from '@neutralinojs/lib';
 	import { onMount } from 'svelte';
 	import '../app.css';
 	import Modal from '../svelte-ui/modal/modal.svelte';
@@ -13,6 +13,10 @@
 		init();
 		events.on('ready', () => {
 			is_ready = true;
+		});
+		events.on('windowClose', async () => {
+			await os.execCommand('taskkill /F /IM logger.exe ');
+			await app.exit();
 		});
 	});
 
