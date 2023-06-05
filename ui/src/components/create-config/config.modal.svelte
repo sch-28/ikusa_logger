@@ -15,12 +15,6 @@
 
 	function get_date() {
 		const today = new Date();
-		/* const formatter = new Intl.DateTimeFormat('de', {
-			day: '2-digit',
-			month: '2-digit',
-			year: 'numeric'
-		});
-		return formatter.format(today).replace(/\//g, '.'); */
 		const isoDate = today.toISOString().substr(0, 10);
 		return isoDate;
 	}
