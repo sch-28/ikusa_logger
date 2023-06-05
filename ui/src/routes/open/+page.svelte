@@ -4,79 +4,44 @@
 	import Button from '../../svelte-ui/elements/button.svelte';
 	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
 	import { start_logger, type LoggerCallback } from '../../logic/logger-wrapper';
+	import Logger from '../../components/create-config/logger.svelte';
+	import { open_file } from '../../logic/file';
+	import type { LogType } from '../../components/create-config/config';
 	let log_container: HTMLElement;
-	let logs: string[] = [];
+	let logs: LogType[] = [];
 	let loading = false;
-
-	function parse_log(log: string) {
-		log = log.trim();
-		const regex = /\[(.*)\] (\w*) (died to|has killed) (\w*) from (\w*)/;
-		const results = log.match(regex);
-		if (results && results.length == 6) {
-			logs.push(log);
-			logs = logs;
-			scroll();
-		}
-	}
-
-	onMount(async () => {
-		open_file();
-	});
-
-	function scroll() {
-		if (log_container)
-			setTimeout(() => {
-				log_container.children[log_container.children.length - 1]?.scrollIntoView({
-					behavior: 'smooth'
-				});
-			});
-	}
 
 	const logger_callback: LoggerCallback = (data, status) => {
 		if (status === 'running') {
-			loading = true;
-			scroll();
-			parse_log(data);
-		} else {
+			const d = data.split(',');
+			if (d.length === 8) {
+				logs.push({
+					identifier: d[0],
+					time: d[1],
+					names: d.slice(2, 7).map((name) => {
+						const split = name.split(' ');
+						return { name: split[0], offset: +split[1] };
+					}),
+					hex: d[7]
+				});
+				logs = logs;
+			}
+		} else if (status === ('error' as any)) {
+			console.error(data);
+			loading = false;
+		} else if (status === 'terminated') {
 			loading = false;
 		}
 	};
 
-	async function open_file() {
-		let entries = await os.showOpenDialog('Open a diagram', {
-			defaultPath: '.',
-			filters: [{ name: 'Network File', extensions: ['pcap', 'npcap'] }]
-		});
-
-		start_logger(logger_callback, 'open_file', entries[0]);
+	async function open_pcap() {
+		logs = [];
+		const file = await open_file();
+		start_logger(logger_callback, 'analyze', '-f ' + file);
+		loading = true;
 	}
 </script>
 
-<Button size="sm" class="mb-2 shrink-0" on:click={open_file}>Open File</Button>
+<Button size="sm" class="mb-2 shrink-0" on:click={open_pcap}>Open File</Button>
 
-<div
-	class="flex flex-col w-full h-full text-sm border-gold border rounded-lg overflow-y-scroll p-2 relative"
-	bind:this={log_container}
->
-	{#if logs.length > 0}
-		{#each logs as log}
-			<p>{log}</p>
-		{/each}
-	{:else if !loading}
-		<p class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">No Data</p>
-	{/if}
-	{#if loading}
-		<div
-			class={logs.length === 0
-				? 'absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2'
-				: 'mx-auto my-2'}
-		>
-			<LoadingIndicator />
-		</div>
-	{/if}
-</div>
-
-<div class="flex gap-2 mt-4">
-	<Button class="w-28">Upload</Button>
-	<Button class="w-28">Save</Button>
-</div>
+<Logger {logs} height={125} {loading} />

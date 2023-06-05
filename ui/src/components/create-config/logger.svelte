@@ -1,21 +1,23 @@
 <script lang="ts">
 	import VirtualList from '@sveltejs/svelte-virtual-list';
-	import IoMdInformationCircleOutline from 'svelte-icons/io/IoMdInformationCircleOutline.svelte';
-	import { type LoggerCallback, start_logger } from '../../logic/logger-wrapper';
-	import { open_file, open_save_location } from '../../logic/file';
-	import Icon from '../../svelte-ui/elements/icon.svelte';
+	import { open_save_location } from '../../logic/file';
 	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
-	import { ModalManager } from '../../svelte-ui/modal/modal-store';
 	import { find_all_indicies } from '../../svelte-ui/util';
 	import Button from '../../svelte-ui/elements/button.svelte';
 	import Select from '../../components/create-config/select.svelte';
-	import ConfigModal from '../../components/create-config/config.modal.svelte';
-	import { onMount } from 'svelte';
 	import Checkbox from '../../svelte-ui/elements/checkbox.svelte';
-	import { update_config, type Config, type LogType, get_date, get_formatted_date } from '../../components/create-config/config';
+	import {
+		update_config,
+		type Config,
+		type LogType,
+		get_date,
+		get_formatted_date
+	} from '../../components/create-config/config';
 	import { filesystem } from '@neutralinojs/lib';
 
 	export let logs: LogType[];
+	export let height: number = 155;
+	export let loading: boolean = false;
 
 	let player_one_index = 0;
 	let player_two_index = 1;
@@ -43,6 +45,12 @@
 			};
 			if (possible_kill_offsets.length > 0) {
 				update_config(config);
+			}
+		} else {
+			scroll(true);
+			const v_list = document.querySelector('svelte-virtual-list-contents');
+			if (v_list) {
+				v_list.setAttribute('style', 'padding-top: 0px; padding-bottom: 0px;');
 			}
 		}
 	}
@@ -104,10 +112,12 @@
 		}
 	}
 
-	function scroll() {
+	function scroll(top?: boolean) {
 		const container = document.querySelector('svelte-virtual-list-viewport');
-		if (container) {
+		if (container && !top) {
 			container.scrollTop = container.scrollHeight;
+		} else if (container) {
+			container.scrollTop = 0;
 		}
 	}
 
@@ -119,7 +129,7 @@
 			else
 				output += `[${log.time}] ${log.names[player_one_index].name} died to ${log.names[player_two_index].name} from ${log.names[guild_index].name}\n`;
 		}
-		const path = await open_save_location(get_formatted_date(get_date()) + ".log");
+		const path = await open_save_location(get_formatted_date(get_date()) + '.log');
 		filesystem.writeFile(path, output);
 	}
 
@@ -154,8 +164,12 @@
 			<Icon icon={IoMdInformationCircleOutline} />
 		</button> -->
 	</div>
-	<div class="h-[155px] w-full overflow-auto flex flex-col">
-		{#if logs.length === 0}
+	<div class="w-full overflow-auto flex flex-col" style="height: {height}px;">
+		{#if loading && logs.length === 0}
+			<div class="absolute inset-0 flex justify-center items-center">
+				<LoadingIndicator />
+			</div>
+		{:else if logs.length === 0 && !loading}
 			<p class="text-center text-gray-400">Waiting for logs...</p>
 		{/if}
 		<VirtualList items={logs} let:item={log}>

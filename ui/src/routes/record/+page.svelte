@@ -38,15 +38,9 @@
 		}
 	};
 
-	/* 	async function open_pcap() {
-		const file = await open_file();
-		start_logger(logger_callback, 'analyze', '-f ' + file);
-		state = 'loading';
-	} */
-
 	onMount(async () => {
 		start_logger(logger_callback, 'analyze');
 	});
 </script>
 
-<Logger {logs} />
+<Logger {logs} height={160} />
