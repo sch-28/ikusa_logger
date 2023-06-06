@@ -44,6 +44,7 @@
 	"type": "module",
 	"dependencies": {
 		"@neutralinojs/lib": "^3.9.0",
-		"autoprefixer": "^10.4.14"
+		"autoprefixer": "^10.4.14",
+		"config-ini-parser": "^1.6.1"
 	}
 }
