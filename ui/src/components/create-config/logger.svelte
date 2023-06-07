@@ -46,7 +46,7 @@
 	$: {
 		if (logs.length > 0) {
 			possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
-			auto_scroll && scroll();
+			auto_scroll && setTimeout(scroll);
 
 			local_config = {
 				...local_config,
