@@ -10,6 +10,7 @@
 		"app.exit",
 		"filesystem.readFile",
 		"filesystem.writeFile",
+		"os.open",
 		"os.showOpenDialog",
 		"os.showSaveDialog",
 		"os.spawnProcess",

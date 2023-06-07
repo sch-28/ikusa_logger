@@ -52,6 +52,11 @@
 <div class="flex flex-col items-center justify-center gap-2">
 	<Button class="w-32" on:click={() => goto('/record')}>Record</Button>
 	<Button class="w-32" on:click={() => goto('/open')}>Open</Button>
+	<Button
+		class="w-32"
+		on:click={() => os.open('https://alpha.ikusa.site/docs/introduction')}
+		color="secondary">Help</Button
+	>
 
 	<div class="min-h-[32px] mt-4 text-center">
 		{#if loading || !status}
