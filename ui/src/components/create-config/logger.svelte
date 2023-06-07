@@ -11,9 +11,12 @@
 		type Config,
 		type LogType,
 		get_date,
-		get_formatted_date
+		get_formatted_date,
+		update_storage,
+		get_storage
 	} from '../../components/create-config/config';
 	import { filesystem } from '@neutralinojs/lib';
+	import { onMount } from 'svelte';
 
 	export let logs: LogType[];
 	export let height: number = 155;
@@ -24,9 +27,19 @@
 	let guild_index = 2;
 
 	let possible_kill_offsets: number[] = [];
-	let kill_offset = 0;
+	let kill_index = 0;
 
-	let config: Config;
+	let local_config: Config;
+
+	onMount(async () => {
+		const last_config = await get_storage();
+		if (last_config) {
+			player_one_index = last_config.player_one_index;
+			player_two_index = last_config.player_two_index;
+			guild_index = last_config.guild_index;
+			possible_kill_offsets = [last_config.kill_offset];
+		}
+	});
 
 	let auto_scroll = true;
 
@@ -35,16 +48,22 @@
 			possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
 			auto_scroll && scroll();
 
-			config = {
-				...config,
+			local_config = {
+				...local_config,
 				identifier: logs[0].identifier,
 				player_one: logs[0].names[player_one_index].offset,
 				player_two: logs[0].names[player_two_index].offset,
 				guild: logs[0].names[guild_index].offset,
-				kill: possible_kill_offsets[kill_offset]
+				kill: possible_kill_offsets[kill_index]
 			};
 			if (possible_kill_offsets.length > 0) {
-				update_config(config);
+				update_config(local_config);
+				update_storage({
+					player_one_index,
+					player_two_index,
+					guild_index,
+					kill_offset: possible_kill_offsets[kill_index]
+				});
 			}
 		} else {
 			scroll(true);
@@ -124,7 +143,7 @@
 	async function save_logs() {
 		let output = '';
 		for (const log of logs) {
-			if (log.hex[possible_kill_offsets[kill_offset]] === '1')
+			if (log.hex[possible_kill_offsets[kill_index]] === '1')
 				output += `[${log.time}] ${log.names[player_one_index].name} has killed ${log.names[player_two_index].name} from ${log.names[guild_index].name}\n`;
 			else
 				output += `[${log.time}] ${log.names[player_one_index].name} died to ${log.names[player_two_index].name} from ${log.names[guild_index].name}\n`;
@@ -132,22 +151,12 @@
 		const path = await open_save_location(get_formatted_date(get_date()) + '.log');
 		filesystem.writeFile(path, output);
 	}
-
-	/* 	async function open_pcap() {
-		const file = await open_file();
-		start_logger(logger_callback, 'analyze', '-f ' + file);
-		state = 'loading';
-	} */
-
-	/* onMount(async () => {
-		start_logger(logger_callback, 'analyze');
-	}); */
 </script>
 
 <div class="flex flex-col gap-2 items-center w-full relative">
 	<div class="flex gap-1 items-center justify-start w-full px-1">
 		<p class="w-16">Kill offset:</p>
-		<Select options={possible_kill_offsets} bind:selected_value={kill_offset} />
+		<Select options={possible_kill_offsets} bind:selected_value={kill_index} />
 		<div class="ml-auto">
 			<Checkbox bind:checked={auto_scroll} />
 			<span>Auto scroll</span>
@@ -182,7 +191,7 @@
 					on_change={(e) => update_names('player_one', e)}
 				/>
 				<div class="flex justify-center items-center w-16">
-					{#if log.hex[possible_kill_offsets[kill_offset]] === '1'}
+					{#if log.hex[possible_kill_offsets[kill_index]] === '1'}
 						<p class="self-center text-submarine-500">killed</p>
 					{:else}
 						<p class="self-center text-red-500">died to</p>
