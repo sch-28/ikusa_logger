@@ -43,4 +43,4 @@
 	});
 </script>
 
-<Logger {logs} height={160} />
+<Logger {logs} height={155} />
