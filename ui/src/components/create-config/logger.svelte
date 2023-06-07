@@ -68,9 +68,9 @@
 		} else {
 			scroll(true);
 			const v_list = document.querySelector('svelte-virtual-list-contents');
-			if (v_list) {
+			/* if (v_list) {
 				v_list.setAttribute('style', 'padding-top: 0px; padding-bottom: 0px;');
-			}
+			} */
 		}
 	}
 
@@ -181,6 +181,7 @@
 		{:else if logs.length === 0 && !loading}
 			<p class="text-center text-gray-400">Waiting for logs...</p>
 		{/if}
+		{#key logs.length === 0}
 		<VirtualList items={logs} let:item={log}>
 			<div class="flex gap-2 group py-1 items-center px-1">
 				<p class="text-sm text-gray-400">{log.time}</p>
@@ -215,6 +216,7 @@
 					</div> -->
 			</div>
 		</VirtualList>
+		{/key}
 	</div>
 	<div class="flex gap-2">
 		<Button class="w-32" on:click={() => null}>Upload</Button>
