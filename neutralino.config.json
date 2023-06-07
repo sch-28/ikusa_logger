@@ -6,7 +6,19 @@
 	"url": "/",
 	"enableServer": true,
 	"enableNativeAPI": true,
-	"nativeAllowList": ["app.*", "filesystem.*", "os.*", "clipboard.writeText"],
+	"nativeAllowList": [
+		"app.exit",
+		"filesystem.readFile",
+		"filesystem.writeFile",
+		"os.showOpenDialog",
+		"os.showSaveDialog",
+		"os.spawnProcess",
+		"os.updateSpawnedProcess",
+		"os.execCommand",
+		"clipboard.writeText",
+		"storage.setData",
+		"storage.getData"
+	],
 	"modes": {
 		"window": {
 			"title": "Ikusa Logger",
@@ -21,7 +33,7 @@
 		}
 	},
 	"cli": {
-		"binaryName": "application",
+		"binaryName": "ikusa-logger",
 		"resourcesPath": "/ui/build/",
 		"extensionsPath": "/extensions/",
 		"binaryVersion": "4.10.0",
