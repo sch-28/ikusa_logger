@@ -50,7 +50,7 @@ export async function start_logger(
 	await os.execCommand("taskkill /F /IM logger.exe ")
 
 	const extra_args = data ? ' ' + data : '';
-	logger = await os.spawnProcess('logger\\dist\\logger\\logger ' + arg_mapping[arg] + extra_args);
+	logger = await os.spawnProcess('logger\\logger ' + arg_mapping[arg] + extra_args);
 	callback = clb;
 	events.on('spawnedProcess', handle_process);
 }
