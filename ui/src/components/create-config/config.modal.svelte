@@ -1,77 +1,71 @@
 <script lang="ts">
 	import IoMdClipboard from 'svelte-icons/io/IoMdClipboard.svelte';
-	import { clipboard } from '@neutralinojs/lib';
-	import type { Config } from '@sveltejs/kit';
 	import Icon from '../../svelte-ui/elements/icon.svelte';
+	import { copy_to_clipboard, type Config } from './config';
+	import Select from './select.svelte';
 
 	export let config: Config;
-
-	export let onChange: (config: Config) => void;
-
-	$: config = {
-		...config,
-		patch: config.patch ?? get_date()
+	export let options: {
+		possible_kill_offsets: number[];
+		possible_name_offsets: { offset: number; count: number }[][];
+		name_indicies: number[];
+		player_one_index: number;
+		player_two_index: number;
+		guild_index: number;
+		kill_index: number;
 	};
+	export let onChange: (new_options: typeof options) => void;
 
-	function get_date() {
-		const today = new Date();
-		const isoDate = today.toISOString().substr(0, 10);
-		return isoDate;
+	function update_name_index(name_index: number, e: Event) {
+		const index = +(e.target as HTMLSelectElement).value;
+		options.name_indicies[name_index] = index;
+
+		onChange(options);
 	}
 
-	function get_formatted_date(date_string: string) {
-		const date = new Date(date_string);
-		const formatter = new Intl.DateTimeFormat('de', {
-			day: '2-digit',
-			month: '2-digit',
-			year: 'numeric'
-		});
-		return formatter.format(date).replace(/\//g, '.');
-	}
+	function update_kill_index(e: Event) {
+		const index = +(e.target as HTMLSelectElement).value;
+		options.kill_index = index;
 
-	function copy_to_clipboard() {
-		clipboard.writeText(`[GENERAL]
-patch=${config.patch ? get_formatted_date(config.patch) : get_formatted_date(get_date())}
-[IP]
-server_1 = 20.76.13
-server_2 = 20.76.14
-[PACKAGE]
-identifier = ${config.identifier}
-guild = ${config.guild}
-player_one = ${config.player_one}
-player_two = ${config.player_two}
-kill = ${config.kill}
-log_length = 600
-name_length = 64`);
+		onChange(options);
 	}
 </script>
 
 {#if config}
 	<div class="flex justify-between">
 		<h3 class="font-bold">Config</h3>
-		<button on:click={copy_to_clipboard}>
+		<button on:click={copy_to_clipboard.bind(null, config)}>
 			<Icon icon={IoMdClipboard} />
 		</button>
 	</div>
 
 	<pre class="text-sm mt-2">
 [GENERAL]
-patch 		= 	<input
-			type="date"
-			bind:value={config.patch}
-			on:change={() => onChange(config)}
-			class="!px-1 !py-0.5 !rounded-lg"
-		/>
+patch 		= 	{config.patch}
 [IP]
 server_1 	= 	20.76.13
 server_2 	= 	20.76.14
 [PACKAGE]
 identifier 	= 	{config.identifier}
-guild 		= 	{config.guild}
-player_one 	= 	{config.player_one}
-player_two 	= 	{config.player_two}
-kill 		= 	{config.kill}
-log_length 	= 	600
-name_length = 	64
+kill 		= 	<Select
+			options={options.possible_kill_offsets}
+			selected_value={options.kill_index}
+			on_change={(e) => update_kill_index(e)}
+		/>
+player_one 	= 	<Select
+			options={options.possible_name_offsets[options.player_one_index].map((entry) => entry.offset)}
+			selected_value={options.name_indicies[options.player_one_index]}
+			on_change={(e) => update_name_index(0, e)}
+		/>
+player_two 	= 	<Select
+			options={options.possible_name_offsets[options.player_two_index].map((entry) => entry.offset)}
+			selected_value={options.name_indicies[options.player_two_index]}
+			on_change={(e) => update_name_index(1, e)}
+		/>
+guild 		= 	<Select
+			options={options.possible_name_offsets[options.guild_index].map((entry) => entry.offset)}
+			selected_value={options.name_indicies[options.guild_index]}
+			on_change={(e) => update_name_index(2, e)}
+		/>
 </pre>
 {/if}

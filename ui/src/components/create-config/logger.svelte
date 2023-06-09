@@ -2,25 +2,32 @@
 	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { open_save_location } from '../../logic/file';
 	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
+	import IoMdSettings from 'svelte-icons/io/IoMdSettings.svelte';
 	import { find_all_indicies } from '../../svelte-ui/util';
 	import Button from '../../svelte-ui/elements/button.svelte';
-	import Select from '../../components/create-config/select.svelte';
 	import Checkbox from '../../svelte-ui/elements/checkbox.svelte';
+	import ConfigModal from './config.modal.svelte';
 	import {
 		update_config,
 		type Config,
 		type LogType,
 		get_date,
 		get_formatted_date,
-		update_storage,
-		get_storage
+		get_config,
+		hexToString
 	} from '../../components/create-config/config';
 	import { filesystem } from '@neutralinojs/lib';
 	import { onMount } from 'svelte';
+	import { ModalManager } from '../../svelte-ui/modal/modal-store';
+	import Icon from '../../svelte-ui/elements/icon.svelte';
+	import Select from './select.svelte';
 
 	export let logs: LogType[];
 	export let height: number = 155;
 	export let loading: boolean = false;
+
+	let possible_name_offsets: { offset: number; count: number }[][] = [];
+	let name_indicies: number[] = [0, 0, 0, 0, 0];
 
 	let player_one_index = 0;
 	let player_two_index = 1;
@@ -29,50 +36,89 @@
 	let possible_kill_offsets: number[] = [];
 	let kill_index = 0;
 
-	let local_config: Config;
+	let config: Config;
+	let auto_scroll = true;
 
 	onMount(async () => {
-		const last_config = await get_storage();
-		if (last_config) {
-			player_one_index = last_config.player_one_index;
-			player_two_index = last_config.player_two_index;
-			guild_index = last_config.guild_index;
-			possible_kill_offsets = [last_config.kill_offset];
-		}
+		config = await get_config();
+		possible_kill_offsets = [config.kill];
+		possible_name_offsets = [
+			[{ offset: config.player_one, count: 1 }],
+			[{ offset: config.player_two, count: 1 }],
+			[{ offset: config.guild, count: 1 }]
+		];
+
+		auto_scroll = config.auto_scroll;
 	});
 
-	let auto_scroll = true;
+	$: {
+		auto_scroll;
+		config && update_config({ ...config, auto_scroll });
+	}
 
 	$: {
 		if (logs.length > 0) {
-			possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
-			auto_scroll && setTimeout(scroll);
-
-			local_config = {
-				...local_config,
-				identifier: logs[0].identifier,
-				player_one: logs[0].names[player_one_index].offset,
-				player_two: logs[0].names[player_two_index].offset,
-				guild: logs[0].names[guild_index].offset,
-				kill: possible_kill_offsets[kill_index]
-			};
-			if (possible_kill_offsets.length > 0) {
-				update_config(local_config);
-				update_storage({
-					player_one_index,
-					player_two_index,
-					guild_index,
-					kill_offset: possible_kill_offsets[kill_index]
-				});
-			}
+			logs_changed();
 		} else {
 			scroll(true);
-			const v_list = document.querySelector('svelte-virtual-list-contents');
-			/* if (v_list) {
-				v_list.setAttribute('style', 'padding-top: 0px; padding-bottom: 0px;');
-			} */
 		}
 	}
+
+	function logs_changed() {
+		possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
+		auto_scroll && setTimeout(scroll);
+
+		if (possible_kill_offsets.length > 0) {
+			calculate_config();
+		}
+	}
+
+	async function calculate_config() {
+		// get all offsets for each name and count how many times they appear
+		for (const log of logs) {
+			for (let i = 0; i < log.names.length; i++) {
+				const name = log.names[i];
+				if (possible_name_offsets[i]) {
+					const index = possible_name_offsets[i].findIndex((n) => n.offset === name.offset);
+					if (index !== -1) {
+						possible_name_offsets[i][index].count++;
+					} else {
+						possible_name_offsets[i].push({ offset: name.offset, count: 1 });
+					}
+				} else {
+					possible_name_offsets[i] = [{ offset: name.offset, count: 1 }];
+				}
+			}
+		}
+
+		// sort by number of times they appear
+		for (let i = 0; i < possible_name_offsets.length; i++) {
+			possible_name_offsets[i] = possible_name_offsets[i].sort((a, b) => b.count - a.count);
+		}
+
+		config = {
+			...config,
+			patch: get_date(),
+			identifier: logs[0].identifier,
+			player_one: possible_name_offsets[player_one_index][name_indicies[player_one_index]].offset,
+			player_two: possible_name_offsets[player_two_index][name_indicies[player_two_index]].offset,
+			guild: possible_name_offsets[guild_index][name_indicies[guild_index]].offset,
+			kill: possible_kill_offsets[kill_index]
+		};
+		await update_config(config);
+	}
+
+	$: get_name_options = (i: number, log: LogType) => {
+		const names = possible_name_offsets
+			/* .filter((_, index) => index !== i) */
+			.map((list, index) => {
+				const selected = name_indicies[index];
+				return hexToString(log.hex.slice(list[selected].offset, list[selected].offset + 64))
+					.replaceAll('\0', '')
+					.replaceAll(' ', '');
+			});
+		return names;
+	};
 
 	function find_kill_offset(logs: LogType[]) {
 		const all_indicies: number[] = [];
@@ -155,67 +201,84 @@
 
 <div class="flex flex-col gap-2 items-center w-full relative">
 	<div class="flex gap-1 items-center justify-start w-full px-1">
-		<p class="w-16">Kill offset:</p>
-		<Select options={possible_kill_offsets} bind:selected_value={kill_index} />
-		<div class="ml-auto">
+		<!-- <p class="w-16">Kill offset:</p>-->
+		<!-- <Select options={possible_kill_offsets} bind:selected_value={kill_index} /> -->
+		<div>
 			<Checkbox bind:checked={auto_scroll} />
 			<span>Auto scroll</span>
 		</div>
-		<!-- <button
+		<button
 			class="ml-auto"
 			on:click={() =>
-				config &&
 				ModalManager.open(ConfigModal, {
 					config: config,
-					onChange: on_config_change
+					options: {
+						possible_kill_offsets,
+						possible_name_offsets,
+						name_indicies,
+						player_one_index,
+						player_two_index,
+						guild_index,
+						kill_index
+					},
+					onChange: (options) => {
+						possible_kill_offsets = options.possible_kill_offsets;
+						possible_name_offsets = options.possible_name_offsets;
+						name_indicies = options.name_indicies;
+						player_one_index = options.player_one_index;
+						player_two_index = options.player_two_index;
+						guild_index = options.guild_index;
+						kill_index = options.kill_index;
+						update_config(config);
+					}
 				})}
 		>
-			<Icon icon={IoMdInformationCircleOutline} />
-		</button> -->
+			<Icon icon={IoMdSettings} />
+		</button>
 	</div>
 	<div class="w-full overflow-auto flex flex-col" style="height: {height}px;">
 		{#if loading && logs.length === 0}
-			<div class="absolute inset-0 flex justify-center items-center">
+			<div class="absolute inset-0 flex justify-center items-center mb-14">
 				<LoadingIndicator />
 			</div>
 		{:else if logs.length === 0 && !loading}
 			<p class="text-center text-gray-400">Waiting for logs...</p>
 		{/if}
 		{#key logs.length === 0}
-		<VirtualList items={logs} let:item={log}>
-			<div class="flex gap-2 group py-1 items-center px-1">
-				<p class="text-sm text-gray-400">{log.time}</p>
-				<!-- <p>{log.names[player_one_index].name}</p> -->
-				<Select
-					options={log.names.map((n) => n.name)}
-					selected_value={player_one_index}
-					on_change={(e) => update_names('player_one', e)}
-				/>
-				<div class="flex justify-center items-center w-16">
-					{#if log.hex[possible_kill_offsets[kill_index]] === '1'}
-						<p class="self-center text-submarine-500">killed</p>
-					{:else}
-						<p class="self-center text-red-500">died to</p>
-					{/if}
-				</div>
-				<Select
-					options={log.names.map((n) => n.name)}
-					selected_value={player_two_index}
-					on_change={(e) => update_names('player_two', e)}
-				/>
-				<p class="text-sm text-gray-400">from</p>
-				<Select
-					options={log.names.map((n) => n.name)}
-					selected_value={guild_index}
-					on_change={(e) => update_names('guild', e)}
-				/>
-				<!-- <div class="ml-auto hidden group-hover:flex items-center">
+			<VirtualList items={logs} let:item={log}>
+				<div class="flex gap-2 group py-1 items-center px-1">
+					<p class="text-sm text-gray-400">{log.time}</p>
+					<!-- <p>{log.names[player_one_index].name}</p> -->
+					<Select
+						options={get_name_options(player_one_index, log)}
+						selected_value={player_one_index}
+						on_change={(e) => update_names('player_one', e)}
+					/>
+					<div class="flex justify-center items-center w-16">
+						{#if log.hex[possible_kill_offsets[kill_index]] === '1'}
+							<p class="self-center text-submarine-500">killed</p>
+						{:else}
+							<p class="self-center text-red-500">died to</p>
+						{/if}
+					</div>
+					<Select
+						options={get_name_options(player_two_index, log)}
+						selected_value={player_two_index}
+						on_change={(e) => update_names('player_two', e)}
+					/>
+					<p class="text-sm text-gray-400">from</p>
+					<Select
+						options={get_name_options(guild_index, log)}
+						selected_value={guild_index}
+						on_change={(e) => update_names('guild', e)}
+					/>
+					<!-- <div class="ml-auto hidden group-hover:flex items-center">
 						<button on:click={() => null}>
 							<Icon icon={MdDelete} class="self-center text-red-500" />
 						</button>
 					</div> -->
-			</div>
-		</VirtualList>
+				</div>
+			</VirtualList>
 		{/key}
 	</div>
 	<div class="flex gap-2">

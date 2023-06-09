@@ -1,14 +1,16 @@
-import { filesystem, storage } from '@neutralinojs/lib';
+import { clipboard, filesystem, storage } from '@neutralinojs/lib';
+import { auto } from '@popperjs/core';
 import ConfigIniParser from 'config-ini-parser';
 import { writable } from 'svelte/store';
 
 export type Config = {
-	patch?: string;
+	patch: string;
 	identifier: string;
 	player_one: number;
 	player_two: number;
 	guild: number;
 	kill: number;
+	auto_scroll: boolean;
 };
 
 export type LogType = {
@@ -50,6 +52,7 @@ log_length = 600
 name_length = 64`;
 }
 
+/* 
 export async function get_config() {
 	const config_parser = new ConfigIniParser.ConfigIniParser();
 	const raw_config = await filesystem.readFile('config.ini');
@@ -66,52 +69,37 @@ export async function get_config() {
 
 export async function update_config(config: Config) {
 	filesystem.writeFile('config.ini', stringify_config(config));
+} */
+
+export async function update_config(config: Config) {
+	await storage.setData('config', JSON.stringify(config));
 }
 
-export type ConfigStorage = {
-	player_one_index: number;
-	player_two_index: number;
-	guild_index: number;
-	kill_offset: number;
-};
-export async function update_storage(config: ConfigStorage) {
-	await storage.setData(
-		'config',
-		JSON.stringify({
-			player_one_index: config.player_one_index,
-			player_two_index: config.player_two_index,
-			guild_index: config.guild_index,
-			kill_offset: config.kill_offset
-		})
-	);
-}
-
-export async function get_storage() {
-	const config = await storage.getData('config').catch(() => null);
+export async function get_config(): Promise<Config> {
+	const config = await storage.getData('config').catch((e) => console.error(e));
 	if (config) {
 		return JSON.parse(config);
 	} else {
 		return {
-			player_one_index: 0,
-			player_two_index: 1,
-			guild_index: 2,
-			kill_index: 0
+			identifier: '',
+			player_one: 0,
+			player_two: 0,
+			guild: 0,
+			kill: 0,
+			patch: '',
+			auto_scroll: true
 		};
 	}
 }
 
-function create_config_store() {
-	const { subscribe, update, set } = writable<Config>();
-
-	return {
-		subscribe,
-
-		init: async () => {
-			return get_config().then((config) => {
-				set(config);
-			});
-		}
-	};
+export function copy_to_clipboard(config: Config) {
+	clipboard.writeText(stringify_config(config));
 }
 
-export const config = create_config_store();
+export function hexToString(hex: string) {
+	let string = '';
+	for (let i = 0; i < hex.length; i += 2) {
+		string += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+	}
+	return string;
+}
