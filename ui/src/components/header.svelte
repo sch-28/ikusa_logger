@@ -4,6 +4,8 @@
 	import IoMdArrowRoundBack from 'svelte-icons/io/IoMdArrowRoundBack.svelte';
 
 	$: show_arrow = $page.route.id !== '/';
+
+	const version = NL_APPVERSION;
 </script>
 
 <header class="flex items-center justify-center">
@@ -15,7 +17,7 @@
 				</div>
 			{/if}
 			Ikusa
-			<span class="text-xs font-light">Logger</span>
+			<span class="text-xs font-light">Logger <span class="text-xs">{version}</span></span>
 		</a>
 	</div>
 </header>
