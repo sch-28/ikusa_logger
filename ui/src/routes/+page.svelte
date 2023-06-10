@@ -17,7 +17,6 @@
 			let url =
 				'https://raw.githubusercontent.com/sch-28/ikusa_logger/main/version/version-manifest.json';
 			let manifest = await updater.checkForUpdates(url);
-			console.log(manifest, NL_APPVERSION)
 			if (manifest.version != NL_APPVERSION) {
 				console.log('Update available');
 				await updater.install();
