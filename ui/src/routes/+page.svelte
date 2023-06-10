@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { events, os } from '@neutralinojs/lib';
+	import { app, events, os, updater } from '@neutralinojs/lib';
 	import { Toggle } from 'flowbite-svelte';
 	import Button from '../svelte-ui/elements/button.svelte';
 	import { goto } from '$app/navigation';
@@ -11,39 +11,26 @@
 	import Icon from '../svelte-ui/elements/icon.svelte';
 	let loading = false;
 	let status: LoggerStatus;
-	/* let current_errors: (typeof error_message_mapping)[keyof typeof error_message_mapping][] = [];
 
-	const error_message_mapping = {
-		'Npcap is not installed': 'Npcap is not installed',
-		'Could not locate config file or config is invalid':
-			'Could not locate config file or config is invalid',
-		'The config is older than 7 days. It might not work anymore. Try to update the config by using:\r\nlogger.exe -u':
-			'The config is older than 7 days. It might not work anymore.',
-		'Something else went wrong. Please contact the developer.':
-			'Something else went wrong. Please contact the developer.'
-	};
-
-	const logger_callback: LoggerCallback = (data, status) => {
-		if (status === 'running') {
-			if (Object.keys(error_message_mapping).includes(data as keyof typeof error_message_mapping)) {
-				current_errors.push(error_message_mapping[data as keyof typeof error_message_mapping]);
-				current_errors = current_errors;
+	async function check_for_updates() {
+		try {
+			let url =
+				'https://raw.githubusercontent.com/sch-28/ikusa_logger/main/version/version-manifest.json';
+			let manifest = await updater.checkForUpdates(url);
+			console.log(manifest, NL_APPVERSION)
+			if (manifest.version != NL_APPVERSION) {
+				console.log('Update available');
+				await updater.install();
+				await app.restartProcess();
 			}
-		} else if (status === 'error') {
-			console.error(data);
-			current_errors.push(
-				error_message_mapping['Something else went wrong. Please contact the developer.']
-			);
-			current_errors = current_errors;
-			loading = false;
-		} else if (status === 'terminated') {
-			loading = false;
+		} catch (err) {
+			console.error(err);
 		}
-	}; */
+	}
 
 	onMount(async () => {
 		loading = true;
-		/* start_logger(logger_callback, 'status'); */
+		await check_for_updates()
 		status = await check_status();
 		loading = false;
 	});
