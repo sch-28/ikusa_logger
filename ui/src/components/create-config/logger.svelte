@@ -16,11 +16,12 @@
 		get_config,
 		hexToString
 	} from '../../components/create-config/config';
-	import { filesystem } from '@neutralinojs/lib';
+	import { filesystem, os } from '@neutralinojs/lib';
 	import { onMount } from 'svelte';
 	import { ModalManager } from '../../svelte-ui/modal/modal-store';
 	import Icon from '../../svelte-ui/elements/icon.svelte';
 	import Select from './select.svelte';
+	import { dev } from '$app/environment';
 
 	export let logs: LogType[];
 	export let height: number = 155;
@@ -186,7 +187,7 @@
 		}
 	}
 
-	async function save_logs() {
+	function get_logs_string() {
 		let output = '';
 		for (const log of logs) {
 			if (log.hex[possible_kill_offsets[kill_index]] === '1')
@@ -194,9 +195,34 @@
 			else
 				output += `[${log.time}] ${log.names[player_one_index].name} died to ${log.names[player_two_index].name} from ${log.names[guild_index].name}\n`;
 		}
-		const path = await open_save_location(get_formatted_date(get_date()) + '.log');
-		filesystem.writeFile(path, output);
+
+		return output;
 	}
+
+	async function save_logs() {
+		const path = await open_save_location(get_formatted_date(get_date()) + '.log');
+		filesystem.writeFile(path, get_logs_string());
+	}
+
+	async function upload() {
+		const website = dev ? 'http://localhost:5174' : 'https://www.ikusa.site';
+		const result = await fetch(website + '/api/create', {
+			method: 'POST',
+			body: get_logs_string(),
+			headers: {
+				'Content-Type': 'text/plain'
+			}
+		});
+
+		if (result.status === 200) {
+			const id = (await result.json()).id;
+			os.open(`${website}/wars?id=${id}`);
+		} else {
+			console.error(result);
+		}
+	}
+
+	$: disabled = logs.length === 0 || loading;
 </script>
 
 <div class="flex flex-col gap-2 items-center w-full relative">
@@ -282,7 +308,7 @@
 		{/key}
 	</div>
 	<div class="flex gap-2">
-		<Button class="w-32" on:click={() => null}>Upload</Button>
-		<Button class="w-32" on:click={save_logs} color="secondary">Save</Button>
+		<Button class="w-32" on:click={upload} {disabled}>Upload</Button>
+		<Button class="w-32" on:click={save_logs} color="secondary" {disabled}>Save</Button>
 	</div>
 </div>
