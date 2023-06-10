@@ -6,6 +6,7 @@
 	import { Toaster } from 'svelte-french-toast';
 	import { get_remaining_height } from '../svelte-ui/util';
 	import Header from '../components/header.svelte';
+	import LoadingIndicator from '../svelte-ui/elements/loading-indicator.svelte';
 
 	let is_ready = false;
 
@@ -37,5 +38,9 @@
 		</div>
 		<Modal />
 		<Toaster />
+	</div>
+{:else}
+	<div class="h-screen w-screen flex items-center justify-center">
+		<LoadingIndicator />
 	</div>
 {/if}
