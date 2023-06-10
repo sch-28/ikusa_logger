@@ -6,6 +6,7 @@
 #define MyAppPublisher "sch-28"
 #define MyAppURL "https://www.ikusa.site/"
 #define MyAppExeName "ikusa-logger-win_x64.exe"
+#define MyAppIcoName "icon-2.ico"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -26,6 +27,9 @@ OutputBaseFilename=ikusa-logger-installer
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile="D:\Dev\war-analyzer\logger\combat_logger_gui\application\logger\icon\{#MyAppIcoName}"
+UninstallDisplayName="Uninstall Ikusa Logger"
+UninstallDisplayIcon="D:\Dev\war-analyzer\logger\combat_logger_gui\application\logger\icon\{#MyAppIcoName}"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -38,12 +42,13 @@ Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-log
 Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\config.ini"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\resources.neu"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\WebView2Loader.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\logger\icon\{#MyAppIcoName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\logger\*"; DestDir: "{app}\logger\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}";IconFilename: "{app}\{#MyAppIcoName}"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}";IconFilename: "{app}\{#MyAppIcoName}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
