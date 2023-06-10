@@ -1,5 +1,5 @@
 {
-	"applicationId": "js.neutralino.zero",
+	"applicationId": "ikusa.logger",
 	"version": "1.0.0",
 	"defaultMode": "window",
 	"documentRoot": "/ui/build/",
@@ -30,7 +30,8 @@
 			"maxWidth": 600,
 			"maxHeight": 400,
 			"icon": "/ui/static/logo.png",
-			"exitProcessOnClose": false
+			"exitProcessOnClose": false,
+			"enableInspector": true
 		}
 	},
 	"cli": {
