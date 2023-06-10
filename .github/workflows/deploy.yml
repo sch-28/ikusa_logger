@@ -1,0 +1,40 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      
+      - name: Install dependencies and build UI
+        run: |
+          cd ui
+          npm ci
+          npm run build
+          cd ..
+          npm i -g @neutralinojs/neu
+          neu build
+      
+      - name: Copy resources.neu to version folder
+        run: |
+          cp ./dist/ikusa-logger/resources.neu ./version/resources.neu
+      
+      - name: Commit and push changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add ./version/resources.neu
+          git commit -m "deployed new version"
+          git push
