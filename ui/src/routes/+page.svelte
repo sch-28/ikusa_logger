@@ -54,25 +54,25 @@
 	<Button class="w-32" on:click={() => goto('/open')}>Open</Button>
 	<Button
 		class="w-32"
-		on:click={() => os.open('https://alpha.ikusa.site/docs/introduction')}
+		on:click={() => os.open('https://ikusa.site/docs/introduction')}
 		color="secondary">Help</Button
 	>
 
 	<div class="min-h-[32px] mt-4 text-center">
 		{#if loading || !status}
 			<LoadingIndicator />
-		{:else if status.npcap_installed && status.config_valid && status.config_up_to_date}
-			<p class="text-submarine-500">Config is up to date</p>
+		{:else if status.npcap_installed}
+			<p class="text-submarine-500">Npcap found</p>
 		{:else}
 			{#if !status.npcap_installed}
 				<p class="text-red-500">Npcap is not installed</p>
 			{/if}
-			{#if !status.config_valid}
+			<!-- {#if !status.config_valid}
 				<p class="text-red-500">No config found</p>
 			{/if}
 			{#if !status.config_up_to_date}
 				<p class="text-red-500">Config is outdated</p>
-			{/if}
+			{/if} -->
 		{/if}
 	</div>
 </div>
