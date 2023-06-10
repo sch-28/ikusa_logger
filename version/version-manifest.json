@@ -1,7 +1,7 @@
 {
     "applicationId": "ikusa.logger",
     "version": "0.0.1",
-    "resourcesURL": "http://example.com/updater_test/update_res.neu",
+    "resourcesURL": "https://github.com/sch-28/ikusa_logger/raw/main/version/resources.neu",
     "data": {
     }
 }
