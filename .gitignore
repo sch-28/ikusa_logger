@@ -17,3 +17,5 @@ neutralino.js
 __pycache__
 dist
 build
+Output
+test-data
