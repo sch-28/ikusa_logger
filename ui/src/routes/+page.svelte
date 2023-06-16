@@ -9,6 +9,7 @@
 	import { check_status, type LoggerStatus } from '../logic/logger-status';
 	import GoMarkGithub from 'svelte-icons/go/GoMarkGithub.svelte';
 	import Icon from '../svelte-ui/elements/icon.svelte';
+	import FaDiscord from 'svelte-icons/fa/FaDiscord.svelte';
 	let loading = false;
 	let status: LoggerStatus;
 
@@ -74,7 +75,12 @@
 <div class="w-full flex justify-between absolute bottom-0 p-2 text-sm">
 	<p>Made by <b>ORACLE#7672</b></p>
 
-	<button on:click={() => os.execCommand('start https://github.com/sch-28/ikusa')}
-		><Icon icon={GoMarkGithub} /></button
-	>
+	<div class="flex gap-2">
+		<button on:click={() => os.open('https://discord.gg/nXSYGnxXJ5')}
+			><Icon icon={FaDiscord} /></button
+		>
+		<button on:click={() => os.open('https://github.com/sch-28/ikusa')}
+			><Icon icon={GoMarkGithub} /></button
+		>
+	</div>
 </div>
