@@ -86,7 +86,8 @@ def package_handler(package, output, record=False):
                     time = strftime("%I:%M:%S", localtime(int(package.time)))
                     print(match.group(0)+","+time+","+','.join(names) +
                           ","+possible_log, flush=True)
-                position = 600
+                    position = 600
+                
             else:
                 position = 1
 
