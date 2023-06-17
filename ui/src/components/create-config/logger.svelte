@@ -97,10 +97,24 @@
 			possible_name_offsets[i] = possible_name_offsets[i].sort((a, b) => b.count - a.count);
 		}
 
+		//get all identifiers and count them
+		const identifiers = new Map<string, number>();
+		for (const log of logs) {
+			if (identifiers.has(log.identifier)) {
+				identifiers.set(log.identifier, identifiers.get(log.identifier)! + 1);
+			} else {
+				identifiers.set(log.identifier, 1);
+			}
+		}
+		// get the most common identifier
+		const identifier = Array.from(identifiers.entries())
+			.sort((a, b) => b[1] - a[1])
+			.map((a) => a[0])[0];
+
 		config = {
 			...config,
 			patch: get_date(),
-			identifier: logs[0].identifier,
+			identifier: identifier,
 			player_one: possible_name_offsets[player_one_index][name_indicies[player_one_index]].offset,
 			player_two: possible_name_offsets[player_two_index][name_indicies[player_two_index]].offset,
 			guild: possible_name_offsets[guild_index][name_indicies[guild_index]].offset,
