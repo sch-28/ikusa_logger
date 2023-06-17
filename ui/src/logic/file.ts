@@ -3,7 +3,7 @@ import { os, filesystem } from '@neutralinojs/lib';
 export async function open_file(path = '.') {
 	return await os.showOpenDialog('Open a network recording', {
 		defaultPath: path,
-		filters: [{ name: 'Network File', extensions: ['pcap', 'npcap'] }]
+		filters: [{ name: 'Network File', extensions: ['pcap', 'npcap', 'pcapng'] }]
 	});
 }
 
@@ -13,5 +13,3 @@ export async function open_save_location(path = '.') {
 		filters: [{ name: 'Log file', extensions: ['log'] }]
 	});
 }
-
-
