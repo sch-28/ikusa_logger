@@ -219,7 +219,7 @@
 	}
 
 	async function upload() {
-		const website = dev ? 'http://localhost:5174' : 'https://www.ikusa.site';
+		const website = dev ? 'http://localhost:5174' : 'https://ikusa.site';
 		const result = await fetch(website + '/api/create', {
 			method: 'POST',
 			body: get_logs_string(),
