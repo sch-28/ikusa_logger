@@ -1,7 +1,4 @@
-import { clipboard, filesystem, storage } from '@neutralinojs/lib';
-import { auto } from '@popperjs/core';
-import ConfigIniParser from 'config-ini-parser';
-import { writable } from 'svelte/store';
+import { clipboard, storage } from '@neutralinojs/lib';
 
 export type Config = {
 	patch: string;
@@ -11,6 +8,7 @@ export type Config = {
 	guild: number;
 	kill: number;
 	auto_scroll: boolean;
+	include_characters: boolean;
 };
 
 export type LogType = {
@@ -73,12 +71,18 @@ export async function update_config(config: Config) {
 
 export async function update_config(config: Config) {
 	await storage.setData('config', JSON.stringify(config));
+	return config;
 }
 
 export async function get_config(): Promise<Config> {
 	const config = await storage.getData('config').catch((e) => console.error(e));
 	if (config) {
-		return JSON.parse(config);
+		const parsed: Config = JSON.parse(config);
+		if (parsed.include_characters === undefined) {
+			parsed.include_characters = true;
+		}
+
+		return parsed;
 	} else {
 		return {
 			identifier: '',
@@ -87,7 +91,8 @@ export async function get_config(): Promise<Config> {
 			guild: 0,
 			kill: 0,
 			patch: '',
-			auto_scroll: true
+			auto_scroll: true,
+			include_characters: true
 		};
 	}
 }

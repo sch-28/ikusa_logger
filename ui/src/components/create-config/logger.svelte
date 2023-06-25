@@ -48,7 +48,6 @@
 			[{ offset: config.player_two, count: 1 }],
 			[{ offset: config.guild, count: 1 }]
 		];
-
 		auto_scroll = config.auto_scroll;
 	});
 
@@ -111,10 +110,14 @@
 			.sort((a, b) => b[1] - a[1])
 			.map((a) => a[0])[0];
 
+		await update_config_wrapper(identifier);
+	}
+
+	async function update_config_wrapper(identifier?: string) {
 		config = {
 			...config,
 			patch: get_date(),
-			identifier: identifier,
+			identifier: identifier || config.identifier,
 			player_one: possible_name_offsets[player_one_index][name_indicies[player_one_index]].offset,
 			player_two: possible_name_offsets[player_two_index][name_indicies[player_two_index]].offset,
 			guild: possible_name_offsets[guild_index][name_indicies[guild_index]].offset,
@@ -133,6 +136,14 @@
 					.replaceAll(' ', '');
 			});
 		return names;
+	};
+
+	$: get_name = (i: number, log: LogType) => {
+		const list = possible_name_offsets[i];
+		const selected = name_indicies[i];
+		return hexToString(log.hex.slice(list[selected].offset, list[selected].offset + 64))
+			.replaceAll('\0', '')
+			.replaceAll(' ', '');
 	};
 
 	function find_kill_offset(logs: LogType[]) {
@@ -203,11 +214,25 @@
 
 	function get_logs_string() {
 		let output = '';
+
 		for (const log of logs) {
+			let characters = '';
+
+			const player_one_name = get_name(player_one_index, log);
+			const player_two_name = get_name(player_two_index, log);
+			const guild_name = get_name(guild_index, log);
+			if (config.include_characters) {
+				const remaining_indicies = [0, 1, 2, 3, 4].filter(
+					(i) => i !== player_one_index && i !== player_two_index && i !== guild_index
+				);
+				const remaining_names = remaining_indicies.map((i) => get_name(i, log));
+				characters = ` (${remaining_names.join(',')})`;
+			}
+
 			if (log.hex[possible_kill_offsets[kill_index]] === '1')
-				output += `[${log.time}] ${log.names[player_one_index].name} has killed ${log.names[player_two_index].name} from ${log.names[guild_index].name}\n`;
+				output += `[${log.time}] ${player_one_name} has killed ${player_two_name} from ${guild_name}${characters}\n`;
 			else
-				output += `[${log.time}] ${log.names[player_one_index].name} died to ${log.names[player_two_index].name} from ${log.names[guild_index].name}\n`;
+				output += `[${log.time}] ${player_one_name} died to ${player_two_name} from ${guild_name}${characters}\n`;
 		}
 
 		return output;
@@ -261,7 +286,7 @@
 						guild_index,
 						kill_index
 					},
-					onChange: (options) => {
+					onChange: async (options) => {
 						possible_kill_offsets = options.possible_kill_offsets;
 						possible_name_offsets = options.possible_name_offsets;
 						name_indicies = options.name_indicies;
@@ -269,7 +294,8 @@
 						player_two_index = options.player_two_index;
 						guild_index = options.guild_index;
 						kill_index = options.kill_index;
-						update_config(config);
+						config.include_characters = options.include_characters;
+						await update_config_wrapper();
 					}
 				})}
 		>

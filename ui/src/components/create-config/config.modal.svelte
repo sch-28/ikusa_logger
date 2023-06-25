@@ -3,6 +3,7 @@
 	import Icon from '../../svelte-ui/elements/icon.svelte';
 	import { copy_to_clipboard, type Config } from './config';
 	import Select from './select.svelte';
+	import Checkbox from '../../svelte-ui/elements/checkbox.svelte';
 
 	export let config: Config;
 	export let options: {
@@ -13,6 +14,7 @@
 		player_two_index: number;
 		guild_index: number;
 		kill_index: number;
+		include_characters: boolean;
 	};
 	export let onChange: (new_options: typeof options) => void;
 
@@ -29,6 +31,16 @@
 
 		onChange(options);
 	}
+
+	let include_characters = config.include_characters;
+
+	$: {
+		include_characters;
+		onChange({
+			...options,
+			include_characters
+		});
+	}
 </script>
 
 {#if config}
@@ -38,7 +50,10 @@
 			<Icon icon={IoMdClipboard} />
 		</button>
 	</div>
-
+	<div>
+		<Checkbox bind:checked={include_characters} />
+		<span>Characters</span>
+	</div>
 	<pre class="text-sm mt-2">
 [GENERAL]
 patch 		= 	{config.patch}
