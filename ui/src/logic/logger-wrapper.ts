@@ -18,6 +18,8 @@ function handle_process(evt: CustomEvent) {
 				events.off('spawnedProcess', handle_process);
 				break;
 		}
+	} else {
+		console.log('Invalid logger', logger, evt.detail.id);
 	}
 }
 
@@ -47,13 +49,26 @@ export async function start_logger(
 			console.error(e);
 		}
 	}
-	await os.execCommand('taskkill /F /IM logger.exe ');
+	console.log('Killing previous instances');
+	try {
+		const kill_timouet = new Promise((resolve, reject) => {
+			setTimeout(() => resolve('Kill timeout'), 1000);
+		});
+		const kill_promise = os.execCommand('taskkill /F /IM logger.exe ');
+
+		await Promise.race([kill_promise, kill_timouet]);
+	} catch (e) {
+		console.error(e);
+	}
 
 	const extra_args = data ? ' ' + data : '';
 	let logger_command = 'logger\\logger ';
 	if (dev) {
 		logger_command = 'logger\\dist\\logger\\logger ';
 	}
+
+	console.log('Starting logger with command: ' + logger_command + arg_mapping[arg] + extra_args);
+
 	logger = await os.spawnProcess(logger_command + arg_mapping[arg] + extra_args);
 	callback = clb;
 	events.on('spawnedProcess', handle_process);

@@ -39,12 +39,11 @@ const logger_callback: LoggerCallback = (data, status) => {
 			) {
 				logger_status.config_up_to_date = false;
 			}
-		}else if(data.includes('The config is from the patch: ')){
+		} else if (data.includes('The config is from the patch: ')) {
 			logger_status.patch = data.replace('The config is from the patch: ', '');
 		}
-
 	} else if (status === 'error') {
-		console.error(data);
+		console.error('error', data);
 		logger_status.something_else = data;
 	} else if (status === 'terminated') {
 		console.log(data);

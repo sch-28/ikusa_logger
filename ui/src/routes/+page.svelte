@@ -39,8 +39,11 @@
 
 	onMount(async () => {
 		loading = true;
+		console.log("Checking for updates")
 		await check_for_updates();
+		console.log("Checking status")
 		status = await check_status();
+		console.log("Starting logger")
 		loading = false;
 	});
 </script>
