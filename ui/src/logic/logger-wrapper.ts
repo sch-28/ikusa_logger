@@ -8,6 +8,10 @@ function handle_process(evt: CustomEvent) {
 				callback?.(evt.detail.data.trim(), 'running');
 				break;
 			case 'stdErr':
+				alert(
+					'Something went wrong. Please contact me on discord and send the following error message:\n\n' +
+						evt.detail.data
+				);
 				console.error(evt.detail.data);
 				callback?.(evt.detail.data.trim(), 'error');
 				break;

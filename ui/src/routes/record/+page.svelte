@@ -10,12 +10,14 @@
 	import Button from '../../svelte-ui/elements/button.svelte';
 	import Select from '../../components/create-config/select.svelte';
 	import ConfigModal from '../../components/create-config/config.modal.svelte';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import Checkbox from '../../svelte-ui/elements/checkbox.svelte';
 	import Logger from '../../components/create-config/logger.svelte';
 	import type { LogType } from '../../components/create-config/config';
 
 	let logs: LogType[] = [];
+	let is_destroyed = false;
+	let retry_count = 0;
 
 	const logger_callback: LoggerCallback = (data, status) => {
 		if (status === 'running') {
@@ -34,12 +36,36 @@
 			}
 		} else if (status === ('error' as any)) {
 			console.error(data);
+			alert(
+				'An error occured while trying to start the logger. Error message: ' +
+					data +
+					'\nLogger will be restarted.'
+			);
+			if (!is_destroyed && retry_count < 3) {
+				start_logger(logger_callback, 'analyze');
+				retry_count++;
+			} else if (!is_destroyed && retry_count >= 3) {
+				alert('Tried to start logger 3 times, but failed. Please try again.');
+			} else {
+				retry_count = 0;
+			}
 		} else if (status === 'terminated') {
+			if (!is_destroyed && retry_count < 3) {
+				start_logger(logger_callback, 'analyze');
+				retry_count++;
+			} else if (!is_destroyed && retry_count >= 3) {
+				alert('Tried to start logger 3 times, but failed. Please try again.');
+			} else {
+				retry_count = 0;
+			}
 		}
 	};
 
 	onMount(async () => {
 		start_logger(logger_callback, 'analyze');
+	});
+	onDestroy(() => {
+		is_destroyed = true;
 	});
 </script>
 
