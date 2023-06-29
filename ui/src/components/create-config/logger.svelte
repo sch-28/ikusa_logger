@@ -68,12 +68,13 @@
 		possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
 		auto_scroll && setTimeout(scroll);
 
-		if (possible_kill_offsets.length > 0) {
-			calculate_config();
-		}
+		calculate_config();
 	}
 
 	async function calculate_config() {
+		possible_name_offsets = possible_name_offsets.map((list) =>
+			list.map((n) => ({ ...n, count: 0 }))
+		);
 		// get all offsets for each name and count how many times they appear
 		for (const log of logs) {
 			for (let i = 0; i < log.names.length; i++) {
