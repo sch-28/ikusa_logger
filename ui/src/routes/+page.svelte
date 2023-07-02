@@ -4,7 +4,6 @@
 	import Button from '../svelte-ui/elements/button.svelte';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { start_logger, type LoggerCallback } from '../logic/logger-wrapper';
 	import LoadingIndicator from '../svelte-ui/elements/loading-indicator.svelte';
 	import { check_status, type LoggerStatus } from '../logic/logger-status';
 	import GoMarkGithub from 'svelte-icons/go/GoMarkGithub.svelte';
@@ -29,6 +28,9 @@
 			await updater.install();
 			await app.restartProcess();
 		} catch (err) {
+			alert(
+				'Upadating went wrong, check your internet connection.' + (err as Error).message || err
+			);
 			console.error(err);
 		}
 	}
@@ -42,8 +44,8 @@
 			status = await check_status();
 			console.log('Starting logger');
 		} catch (e) {
-			console.error(e)
-			alert('Upadating went wrong, check your internet connection.' + (e as Error).message);
+			console.error(e);
+			alert('Upadating went wrong, check your internet connection.' + (e as Error).message || e);
 		}
 		loading = false;
 	});
