@@ -65,10 +65,12 @@
 	}
 
 	function logs_changed() {
-		possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
 		auto_scroll && setTimeout(scroll);
 
-		calculate_config();
+		if (logs.length < 50 || logs.length % 100 === 0) {
+			possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
+			calculate_config();
+		}
 	}
 
 	async function calculate_config() {
@@ -269,7 +271,8 @@
 	<div class="flex gap-1 items-center justify-start w-full px-1">
 		<!-- <p class="w-16">Kill offset:</p>-->
 		<!-- <Select options={possible_kill_offsets} bind:selected_value={kill_index} /> -->
-		<div>
+		{logs.length} Logs
+		<div class="ml-2">
 			<Checkbox bind:checked={auto_scroll} />
 			<span>Auto scroll</span>
 		</div>
