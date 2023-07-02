@@ -24,6 +24,7 @@ function handle_process(evt: CustomEvent) {
 		}
 	} else {
 		console.log('Invalid logger', logger, evt.detail.id);
+		alert('Something went wrong. Invalid Logger');
 	}
 }
 

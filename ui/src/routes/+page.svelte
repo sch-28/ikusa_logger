@@ -16,15 +16,11 @@
 	let update_available = false;
 
 	async function check_for_updates() {
-		try {
-			let url =
-				'https://raw.githubusercontent.com/sch-28/ikusa_logger/main/version/version-manifest.json';
-			let manifest = await updater.checkForUpdates(url);
-			if (manifest.version != NL_APPVERSION) {
-				update_available = true;
-			}
-		} catch (err) {
-			console.error(err);
+		let url =
+			'https://raw.githubusercontent.com/sch-28/ikusa_logger/main/version/version-manifest.json';
+		let manifest = await updater.checkForUpdates(url);
+		if (manifest.version != NL_APPVERSION) {
+			update_available = true;
 		}
 	}
 
@@ -38,12 +34,17 @@
 	}
 
 	onMount(async () => {
-		loading = true;
-		console.log("Checking for updates")
-		await check_for_updates();
-		console.log("Checking status")
-		status = await check_status();
-		console.log("Starting logger")
+		try {
+			loading = true;
+			console.log('Checking for updates');
+			await check_for_updates();
+			console.log('Checking status');
+			status = await check_status();
+			console.log('Starting logger');
+		} catch (e) {
+			console.error(e)
+			alert('Upadating went wrong, check your internet connection.' + (e as Error).message);
+		}
 		loading = false;
 	});
 </script>
@@ -58,7 +59,7 @@
 	>
 
 	<div class="min-h-[32px] mt-4 text-center flex flex-col items-center justify-center">
-		{#if loading || !status}
+		{#if loading}
 			<LoadingIndicator />
 		{:else}
 			{#if update_available}
@@ -66,7 +67,7 @@
 				<Button class="w-32 mb-2" on:click={update}>Update</Button>
 			{/if}
 
-			{#if status.npcap_installed && !update_available}
+			{#if status?.npcap_installed && !update_available}
 				<p class="text-submarine-500">Npcap found</p>
 			{:else if !update_available}
 				<p class="text-red-500">Npcap is not installed</p>
