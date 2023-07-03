@@ -58,7 +58,9 @@
 			} else {
 				retry_count = 0;
 			}
-		}
+		}else {
+			alert('Unknown status: ' + status)
+		}	
 	};
 
 	onMount(async () => {
