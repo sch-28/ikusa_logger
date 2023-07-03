@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Ikusa Logger"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.2.4"
 #define MyAppPublisher "sch-28"
 #define MyAppURL "https://www.ikusa.site/"
 #define MyAppExeName "ikusa-logger-win_x64.exe"
