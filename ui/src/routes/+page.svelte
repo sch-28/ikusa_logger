@@ -60,6 +60,11 @@
 		color="secondary">Help</Button
 	>
 
+	<div class="text-submarine-500 absolute top-1/2 -translate-y-1/2 left-2 text-xs w-56 text-center flex flex-col">
+		<span
+			>The recent issue has been resolved. If your version is below 1.2.7, then you have to completly reinstall Ikusa Logger by downloading the latest installer. </span>
+	</div>
+
 	<div class="min-h-[32px] mt-4 text-center flex flex-col items-center justify-center">
 		{#if loading}
 			<LoadingIndicator />
