@@ -87,6 +87,8 @@ def package_handler(package, output, record=False):
                     print(match.group(0)+","+time+","+','.join(names) +
                           ","+possible_log, flush=True)
                     position = 600
+                else:
+                    position = 1
                 
             else:
                 position = 1
