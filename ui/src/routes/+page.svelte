@@ -60,16 +60,6 @@
 		color="secondary">Help</Button
 	>
 
-	<div class="text-red-500 absolute top-1/2 -translate-y-1/2 left-2 text-xs w-56 text-center flex flex-col">
-		<span
-			>Regrettably, an unidentified issue persists, leading to random halts in the logger. To
-			address this problem, I have temporarily enabled the developer console. If you happen to
-			observe the logger ceasing its function, kindly reach out to me on Discord and provide a
-			screenshot of the console.</span
-		>
-		<span>To prevent a loss of data, I recommend to run Wireshark in parallel to the logger.</span>
-	</div>
-
 	<div class="min-h-[32px] mt-4 text-center flex flex-col items-center justify-center">
 		{#if loading}
 			<LoadingIndicator />

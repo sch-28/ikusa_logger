@@ -1,6 +1,6 @@
 {
 	"applicationId": "ikusa.logger",
-	"version": "1.2.6",
+	"version": "1.2.7",
 	"defaultMode": "window",
 	"documentRoot": "/ui/build/",
 	"url": "/",
@@ -32,7 +32,7 @@
 			"maxHeight": 400,
 			"icon": "/ui/static/logo.png",
 			"exitProcessOnClose": false,
-			"enableInspector": true
+			"enableInspector": false
 		}
 	},
 	"cli": {
