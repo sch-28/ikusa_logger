@@ -37,7 +37,7 @@
 	async function open_pcap() {
 		logs = [];
 		const file = await open_file();
-		start_logger(logger_callback, 'analyze', '-f ' + file);
+		start_logger(logger_callback, 'analyze', '-f ' + '"' + file + '"');
 		loading = true;
 	}
 </script>
