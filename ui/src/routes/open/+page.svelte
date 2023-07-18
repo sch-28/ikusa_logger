@@ -1,13 +1,9 @@
 <script lang="ts">
-	import { os } from '@neutralinojs/lib';
-	import { onMount } from 'svelte';
 	import Button from '../../svelte-ui/elements/button.svelte';
-	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
 	import { start_logger, type LoggerCallback } from '../../logic/logger-wrapper';
 	import Logger from '../../components/create-config/logger.svelte';
 	import { open_file } from '../../logic/file';
 	import type { LogType } from '../../components/create-config/config';
-	let log_container: HTMLElement;
 	let logs: LogType[] = [];
 	let loading = false;
 
@@ -15,6 +11,28 @@
 		if (status === 'running') {
 			const d = data.split(',');
 			if (d.length === 8) {
+				const new_log = {
+					identifier: d[0],
+					time: d[1],
+					names: d.slice(2, 7).map((name) => {
+						const split = name.split(' ');
+						return { name: split[0], offset: +split[1] };
+					}),
+					hex: d[7]
+				};
+
+				if (
+					logs.find(
+						(log) =>
+							log.identifier === new_log.identifier &&
+							log.time === new_log.time &&
+							log.names.length === new_log.names.length &&
+							log.names.every((name, i) => name.name === new_log.names[i].name)
+					)
+				) {
+					return;
+				}
+
 				logs.push({
 					identifier: d[0],
 					time: d[1],
