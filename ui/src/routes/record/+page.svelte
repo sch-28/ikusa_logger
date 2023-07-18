@@ -1,17 +1,6 @@
 <script lang="ts">
-	import VirtualList from '@sveltejs/svelte-virtual-list';
-	import IoMdInformationCircleOutline from 'svelte-icons/io/IoMdInformationCircleOutline.svelte';
 	import { type LoggerCallback, start_logger } from '../../logic/logger-wrapper';
-	import { open_file } from '../../logic/file';
-	import Icon from '../../svelte-ui/elements/icon.svelte';
-	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
-	import { ModalManager } from '../../svelte-ui/modal/modal-store';
-	import { find_all_indicies } from '../../svelte-ui/util';
-	import Button from '../../svelte-ui/elements/button.svelte';
-	import Select from '../../components/create-config/select.svelte';
-	import ConfigModal from '../../components/create-config/config.modal.svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import Checkbox from '../../svelte-ui/elements/checkbox.svelte';
 	import Logger from '../../components/create-config/logger.svelte';
 	import type { LogType } from '../../components/create-config/config';
 
@@ -58,9 +47,9 @@
 			} else {
 				retry_count = 0;
 			}
-		}else {
-			alert('Unknown status: ' + status)
-		}	
+		} else {
+			alert('Unknown status: ' + status);
+		}
 	};
 
 	onMount(async () => {
