@@ -1,6 +1,7 @@
 import os
 import re
-from scapy.all import sniff, rdpcap, wrpcap
+from scapy.all import sniff, rdpcap, get_if_list
+from scapy.arch.windows import get_windows_if_list
 from time import localtime, strftime
 from .. import config
 
@@ -66,8 +67,23 @@ def package_handler(package, output, record=False):
         position = 0
         while(len(payload) >= 600):
             payload = payload[position:]
-            match = re.match(identifier_regex, payload[0:20])
-            if(match):
+            match_location = 0
+            matches = list(re.finditer(identifier_regex, payload))
+            
+            if len(matches) == 0:
+                return  # no match found, return - could cause issue if the identifier is split between two packages
+            elif len(matches) == 1:
+                match_location = matches[0].start()
+            else:
+                if matches[0].start() + 600 < matches[1].start():
+                    match_location = matches[0].start()
+                else:
+                    match_location = matches[1].start()
+            
+             
+            payload = payload[match_location:]
+            
+            if(len(payload) >= 600):
                 possible_log = payload[0:600]
                 i = 0
                 names = []
@@ -84,14 +100,14 @@ def package_handler(package, output, record=False):
                         i += 1
                 if len(names) == 5:
                     time = strftime("%I:%M:%S", localtime(int(package.time)))
-                    print(match.group(0)+","+time+","+','.join(names) +
+                    print(payload[0:10] +","+time+","+','.join(names) +
                           ","+possible_log, flush=True)
                     position = 600
                 else:
                     position = 1
                 
             else:
-                position = 1
+                break
 
         last_payload = payload
 
@@ -119,4 +135,11 @@ def open_pcap(file, output):
 
 def start_sniff(output):
     print("Reading Network...", flush=True)
-    sniff(filter="tcp", prn=lambda x: package_handler(x, output), store=0)
+    winList = get_windows_if_list()
+    intfList = get_if_list()
+    guidToNameDict = { e["guid"]: e["name"] for e in winList}
+    namesAllowedList = [guidToNameDict.get( e ) for e in intfList]
+    namesAllowedList = list(filter(None, namesAllowedList))
+    print("Network Interfaces: ", namesAllowedList)
+    sniff(filter="tcp", prn=lambda x: package_handler(x, output), store=0, iface=namesAllowedList if len(namesAllowedList) > 0 else None)
+
