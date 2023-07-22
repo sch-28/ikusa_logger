@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Ikusa Logger"
-#define MyAppVersion "1.2.8"
+#define MyAppVersion "1.2.9"
 #define MyAppPublisher "sch-28"
 #define MyAppURL "https://www.ikusa.site/"
 #define MyAppExeName "ikusa-logger-win_x64.exe"
@@ -27,9 +27,10 @@ OutputBaseFilename=ikusa-logger-installer
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-SetupIconFile="D:\Dev\war-analyzer\logger\combat_logger_gui\application\logger\icon\{#MyAppIcoName}"
+SetupIconFile=".\logger\icon\{#MyAppIcoName}"
 UninstallDisplayName="Uninstall Ikusa Logger"
-UninstallDisplayIcon="D:\Dev\war-analyzer\logger\combat_logger_gui\application\logger\icon\{#MyAppIcoName}"
+UninstallDisplayIcon=".\logger\icon\{#MyAppIcoName}"
+PrivilegesRequired=admin
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -38,12 +39,11 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\config.ini"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\resources.neu"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\WebView2Loader.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\logger\icon\{#MyAppIcoName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Dev\war-analyzer\logger\combat_logger_gui\application\dist\ikusa-logger\logger\*"; DestDir: "{app}\logger\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ".\dist\ikusa-logger\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\dist\ikusa-logger\resources.neu"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\dist\ikusa-logger\WebView2Loader.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\logger\icon\{#MyAppIcoName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\dist\ikusa-logger\logger\*"; DestDir: "{app}\logger\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -51,5 +51,5 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}";IconFilen
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}";IconFilename: "{app}\{#MyAppIcoName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent runascurrentuser
 
