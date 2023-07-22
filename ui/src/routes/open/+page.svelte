@@ -10,7 +10,7 @@
 	const logger_callback: LoggerCallback = (data, status) => {
 		if (status === 'running') {
 			const d = data.split(',');
-			if (d.length === 8) {
+			if (d.length === 8 && !data.includes('Network Interfaces:')) {
 				const new_log = {
 					identifier: d[0],
 					time: d[1],
@@ -33,15 +33,7 @@
 					return;
 				}
 
-				logs.push({
-					identifier: d[0],
-					time: d[1],
-					names: d.slice(2, 7).map((name) => {
-						const split = name.split(' ');
-						return { name: split[0], offset: +split[1] };
-					}),
-					hex: d[7]
-				});
+				logs.push(new_log);
 				logs = logs;
 			}
 		} else if (status === ('error' as any)) {

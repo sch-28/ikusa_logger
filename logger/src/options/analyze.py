@@ -43,7 +43,6 @@ name_regex = r"^[A-Z][a-zA-Z0-9_]{2,15}$"
 
 
 def package_handler(package, output, record=False):
-
     global last_payload
 
     if "IP" not in package:
@@ -69,7 +68,7 @@ def package_handler(package, output, record=False):
             payload = payload[position:]
             match_location = 0
             matches = list(re.finditer(identifier_regex, payload))
-            
+
             if len(matches) == 0:
                 return  # no match found, return - could cause issue if the identifier is split between two packages
             elif len(matches) == 1:
@@ -79,10 +78,9 @@ def package_handler(package, output, record=False):
                     match_location = matches[0].start()
                 else:
                     match_location = matches[1].start()
-            
-             
+
             payload = payload[match_location:]
-            
+
             if(len(payload) >= 600):
                 possible_log = payload[0:600]
                 i = 0
@@ -100,12 +98,12 @@ def package_handler(package, output, record=False):
                         i += 1
                 if len(names) == 5:
                     time = strftime("%I:%M:%S", localtime(int(package.time)))
-                    print(payload[0:10] +","+time+","+','.join(names) +
+                    print(payload[0:10] + ","+time+","+','.join(names) +
                           ","+possible_log, flush=True)
                     position = 600
                 else:
                     position = 1
-                
+
             else:
                 break
 
@@ -133,13 +131,13 @@ def open_pcap(file, output):
         f"Logs saved under: {output}\nYou can close this window now.", flush=True)
 
 
-def start_sniff(output):
+def start_sniff(output, all_interfaces=True):
     print("Reading Network...", flush=True)
     winList = get_windows_if_list()
     intfList = get_if_list()
-    guidToNameDict = { e["guid"]: e["name"] for e in winList}
-    namesAllowedList = [guidToNameDict.get( e ) for e in intfList]
+    guidToNameDict = {e["guid"]: e["name"] for e in winList}
+    namesAllowedList = [guidToNameDict.get(e) for e in intfList]
     namesAllowedList = list(filter(None, namesAllowedList))
-    print("Network Interfaces: ", namesAllowedList)
-    sniff(filter="tcp", prn=lambda x: package_handler(x, output), store=0, iface=namesAllowedList if len(namesAllowedList) > 0 else None)
-
+    print("Network Interfaces: ", namesAllowedList, flush=True)
+    sniff(filter="tcp", prn=lambda x: package_handler(x, output), store=0,
+          iface=namesAllowedList if len(namesAllowedList) > 0 and all_interfaces else None)

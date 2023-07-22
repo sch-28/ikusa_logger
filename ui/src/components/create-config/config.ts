@@ -9,6 +9,7 @@ export type Config = {
 	kill: number;
 	auto_scroll: boolean;
 	include_characters: boolean;
+	all_interfaces: boolean;
 };
 
 export type LogType = {
@@ -92,7 +93,8 @@ export async function get_config(): Promise<Config> {
 			kill: 0,
 			patch: '',
 			auto_scroll: true,
-			include_characters: true
+			include_characters: true,
+			all_interfaces: true
 		};
 	}
 }

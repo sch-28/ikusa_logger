@@ -6,6 +6,9 @@ CALL install.bat
 cd .. 
 xcopy logger\dist\logger dist\ikusa-logger\logger\ /E /Y
 
+:: Copy update script to dist/ikusa-logger/
+xcopy update.bat dist\ikusa-logger\ /Y
+
 :: Build the Frontend
 cd ui 
 CALL npm i

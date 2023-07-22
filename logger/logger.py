@@ -24,7 +24,8 @@ parser.add_argument("-u", "--update",
                     help="Update the config", action= BooleanOptionalAction)
 parser.add_argument("-a", "--analyze",
                     help="Analyze network", action= BooleanOptionalAction)
-
+parser.add_argument("-i", "--allInterfaces",
+                    help="Sniff all interfaces", action= BooleanOptionalAction)
 
 
 args = parser.parse_args()
@@ -44,7 +45,7 @@ elif args.analyze and args.filename != None:
     analyze.open_pcap(args.filename, args.output)
     exit()
 elif args.analyze:
-    analyze.start_sniff(args.output)
+    analyze.start_sniff(args.output, args.allInterfaces)
     exit()
 elif args.filename != None:
     open.open_pcap(args.filename, args.output)

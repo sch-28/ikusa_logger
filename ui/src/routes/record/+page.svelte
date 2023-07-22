@@ -2,7 +2,7 @@
 	import { type LoggerCallback, start_logger } from '../../logic/logger-wrapper';
 	import { onDestroy, onMount } from 'svelte';
 	import Logger from '../../components/create-config/logger.svelte';
-	import type { LogType } from '../../components/create-config/config';
+	import { get_config, type LogType } from '../../components/create-config/config';
 
 	let logs: LogType[] = [];
 	let is_destroyed = false;
@@ -11,8 +11,8 @@
 	const logger_callback: LoggerCallback = (data, status) => {
 		if (status === 'running') {
 			const d = data.split(',');
-			if (d.length === 8) {
-				logs.push({
+			if (d.length === 8 && !data.includes('Network Interfaces:')) {
+				const new_log = {
 					identifier: d[0],
 					time: d[1],
 					names: d.slice(2, 7).map((name) => {
@@ -20,7 +20,21 @@
 						return { name: split[0], offset: +split[1] };
 					}),
 					hex: d[7]
-				});
+				};
+
+				if (
+					logs.find(
+						(log) =>
+							log.identifier === new_log.identifier &&
+							log.time === new_log.time &&
+							log.names.length === new_log.names.length &&
+							log.names.every((name, i) => name.name === new_log.names[i].name)
+					)
+				) {
+					return;
+				}
+
+				logs.push(new_log);
 				logs = logs;
 			}
 		} else if (status === ('error' as any)) {
@@ -53,7 +67,8 @@
 	};
 
 	onMount(async () => {
-		start_logger(logger_callback, 'analyze');
+		const config = await get_config();
+		start_logger(logger_callback, 'analyze', config.all_interfaces ? '-i' : '');
 	});
 	onDestroy(() => {
 		is_destroyed = true;
