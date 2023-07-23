@@ -77,7 +77,16 @@
 		on:click={() => os.open('https://ikusa.site/docs/introduction')}
 		color="secondary">Help</Button
 	>
-
+	<div
+		class="text-submarine-500 absolute top-1/2 -translate-y-1/2 left-2 text-xs w-56 text-center flex flex-col"
+	>
+		<p>
+			If your version is below 1.3.0, then you have to completly reinstall Ikusa Logger by
+			downloading the latest installer.
+		</p>
+		<br />
+		<p>The auto patcher might cause issues. If you have any questions, join our discord server.</p>
+	</div>
 	<div class="min-h-[32px] mt-2 text-center flex flex-col items-center justify-center">
 		{#if loading}
 			<LoadingIndicator />
