@@ -52,7 +52,7 @@ def package_handler(package, output, record=False):
 
     # checks if the package derives from bdo
     is_bdo_ip = len(
-        ([ip for ip in ["20.76.13", "20.76.14"] if ip in package_src])) > 0
+        ([ip for ip in ["20.76.13", "20.76.14", "13.64.17", "13.93.181"] if ip in package_src])) > 0
 
     # checkes if the packages comes from a tcp stream
     uses_tcp = "TCP" in package and hasattr(package["TCP"].payload, "load")
