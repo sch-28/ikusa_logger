@@ -132,12 +132,16 @@ def open_pcap(file, output):
 
 
 def start_sniff(output, all_interfaces=True):
-    print("Reading Network...", flush=True)
-    winList = get_windows_if_list()
-    intfList = get_if_list()
-    guidToNameDict = {e["guid"]: e["name"] for e in winList}
-    namesAllowedList = [guidToNameDict.get(e) for e in intfList]
-    namesAllowedList = list(filter(None, namesAllowedList))
-    print("Network Interfaces: ", namesAllowedList, flush=True)
-    sniff(filter="tcp", prn=lambda x: package_handler(x, output), store=0,
-          iface=namesAllowedList if len(namesAllowedList) > 0 and all_interfaces else None)
+    try:
+        print("Reading Network...", flush=True)
+        winList = get_windows_if_list()
+        intfList = get_if_list()
+        guidToNameDict = {e["guid"]: e["name"] for e in winList}
+        namesAllowedList = [guidToNameDict.get(e) for e in intfList]
+        namesAllowedList = list(filter(None, namesAllowedList))
+        #print("Network Interfaces: ", namesAllowedList, flush=True)
+        sniff(filter="tcp", prn=lambda x: package_handler(x, output), store=0,
+              iface=namesAllowedList if len(namesAllowedList) > 0 and all_interfaces else None)
+    except Exception as e:
+        print("Error while reading network.", flush=True)
+        print(e, flush=True)

@@ -36,6 +36,8 @@
 
 				logs.push(new_log);
 				logs = logs;
+			} else if (data.includes('Error while reading network.')) {
+				alert('Error while reading network. Please notify me on Discord.');
 			}
 		} else if (status === ('error' as any)) {
 			console.error(data);
