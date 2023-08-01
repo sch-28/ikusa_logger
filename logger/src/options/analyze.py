@@ -17,19 +17,27 @@ def extract_string(hex, offset, length):
     if hex[offset:offset+2] == "00":
         return -1
 
-    # check whether the characters are always spaced by 2 bytes (0x00), if not, return -1
+    # check whether the characters are always spaced by 1 byte (0x00), if not, return -1
     test_offset = offset + 2
+    actual_length = length
     while test_offset < offset + length-2:
-        if hex[test_offset:test_offset+2] != "00":
+
+        byte = hex[test_offset:test_offset+2]
+        previous_byte = hex[test_offset-2:test_offset]
+
+        if previous_byte == "00":
+            actual_length = test_offset - offset
+            break
+        if byte != "00":
             return -1
         test_offset += 4
 
     try:
-        length = min(len(hex)-offset, length)
+        actual_length = min(len(hex)-offset, actual_length)
         if length < 0:
             raise ValueError('Package too short')
 
-        return dec(bytes.fromhex(hex[offset:offset+length]))
+        return dec(bytes.fromhex(hex[offset:offset+actual_length]))
     except ValueError as e:
         # print(e, flush=True)
         return -1
