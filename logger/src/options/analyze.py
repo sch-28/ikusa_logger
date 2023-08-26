@@ -72,8 +72,9 @@ def package_handler(package, output, record=False):
         # iterate through the payload and try to find the identifier + player names + guild name + kill
         payload = last_payload + payload
         position = 0
-        while(len(payload) >= 600):
+        while(len(payload[position:]) >= 600):
             payload = payload[position:]
+            position = 0
             match_location = 0
             matches = list(re.finditer(identifier_regex, payload))
 
@@ -115,7 +116,7 @@ def package_handler(package, output, record=False):
             else:
                 break
 
-        last_payload = payload
+        last_payload = payload[position:]
 
 
 def open_pcap(file, output):
