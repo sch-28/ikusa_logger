@@ -92,8 +92,7 @@
 			<LoadingIndicator />
 		{:else}
 			{#if update_available || full_update_available}
-				<p class="text-submarine-500 mb-2">Update available</p>
-				<Button class="w-32 mb-2" on:click={update}>Update</Button>
+				<Button class="w-32" on:click={update}>Update</Button>
 			{/if}
 
 			{#if status?.npcap_installed && !update_available && !full_update_available}
@@ -105,7 +104,7 @@
 	</div>
 </div>
 
-<div class="w-full flex justify-between absolute bottom-0 p-2 text-sm">
+<div class="w-full flex justify-between absolute bottom-0 p-2 text-sm z-0">
 	<p>Made by <b>ORACLE#7672</b></p>
 
 	<div class="flex gap-2">
