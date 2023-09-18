@@ -83,10 +83,15 @@ def package_handler(package, output, record=False):
             elif len(matches) == 1:
                 match_location = matches[0].start()
             else:
-                if matches[0].start() + 600 < matches[1].start():
-                    match_location = matches[0].start()
-                else:
-                    match_location = matches[1].start()
+                while len(matches) > 1:
+                    if matches[0].start() + 600 < matches[1].start():
+                        match_location = matches[0].start()
+                        break
+                    elif len(matches) > 2:
+                        matches.pop(0)
+                    else:
+                        match_location = matches[1].start()
+                        break
 
             payload = payload[match_location:]
 
