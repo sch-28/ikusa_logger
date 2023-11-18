@@ -15,7 +15,7 @@ Visualize your captured logs with this [website](https://github.com/sch-28/ikusa
 https://github.com/sch-28/ikusa_logger/assets/42447473/ebcd67f0-c43a-4d12-b38d-79a7542e92ed
 
 ## Startup Issue
-If you are unable to start the regular ikusa-logger. Try to download the browser version instead.
+If you are unable to start the regular ikusa-logger. Try to start it using the `--mode=browser` argument.
 
 ## Need help?
 If you have any questions, feel free to add me on Discord: sch.28
