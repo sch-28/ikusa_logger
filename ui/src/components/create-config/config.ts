@@ -10,6 +10,7 @@ export type Config = {
 	auto_scroll: boolean;
 	include_characters: boolean;
 	all_interfaces: boolean;
+	ip_filter: boolean;
 };
 
 export type LogType = {
@@ -94,7 +95,8 @@ export async function get_config(): Promise<Config> {
 			patch: '',
 			auto_scroll: true,
 			include_characters: true,
-			all_interfaces: true
+			all_interfaces: true,
+			ip_filter: true
 		};
 	}
 }

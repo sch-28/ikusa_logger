@@ -267,6 +267,12 @@
 	$: disabled = logs.length === 0 || loading;
 </script>
 
+{#if logs.length > 0}
+	<span class="absolute top-2 left-0 right-0 text-center text-gray-400 text-sm"
+		>Adjust the Logs to: <b>Family-Name-1</b> kills/died to
+		<b>Family-Name-2</b> from <b>Guild</b></span
+	>
+{/if}
 <div class="flex flex-col gap-2 items-center w-full relative">
 	<div class="flex gap-1 items-center justify-start w-full px-1">
 		<!-- <p class="w-16">Kill offset:</p>-->

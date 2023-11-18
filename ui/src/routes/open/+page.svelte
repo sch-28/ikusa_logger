@@ -3,7 +3,7 @@
 	import { start_logger, type LoggerCallback } from '../../logic/logger-wrapper';
 	import Logger from '../../components/create-config/logger.svelte';
 	import { open_file } from '../../logic/file';
-	import type { LogType } from '../../components/create-config/config';
+	import { get_config, type LogType } from '../../components/create-config/config';
 	let logs: LogType[] = [];
 	let loading = false;
 
@@ -47,7 +47,12 @@
 	async function open_pcap() {
 		logs = [];
 		const file = await open_file();
-		start_logger(logger_callback, 'analyze', '-f ' + '"' + file + '"');
+		const config = await get_config();
+		start_logger(
+			logger_callback,
+			'analyze',
+			'-f ' + '"' + file + '"' + (config.ip_filter ? ' -p' : '')
+		);
 		loading = true;
 	}
 </script>

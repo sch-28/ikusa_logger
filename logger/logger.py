@@ -26,6 +26,8 @@ parser.add_argument("-a", "--analyze",
                     help="Analyze network", action= BooleanOptionalAction)
 parser.add_argument("-i", "--allInterfaces",
                     help="Sniff all interfaces", action= BooleanOptionalAction)
+parser.add_argument("-p", "--ipFilter",
+                    help="Enable Ip Filter to improve performance", action= BooleanOptionalAction)
 
 
 args = parser.parse_args()
@@ -42,10 +44,10 @@ elif args.record:
 elif args.update:
     update_config.update_config()
 elif args.analyze and args.filename != None:
-    analyze.open_pcap(args.filename, args.output)
+    analyze.open_pcap(args.filename, args.output, args.ipFilter)
     exit()
 elif args.analyze:
-    analyze.start_sniff(args.output, args.allInterfaces)
+    analyze.start_sniff(args.output, args.allInterfaces, args.ipFilter)
     exit()
 elif args.filename != None:
     open.open_pcap(args.filename, args.output)

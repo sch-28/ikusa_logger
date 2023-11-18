@@ -2,11 +2,12 @@
 	import { type LoggerCallback, start_logger } from '../../logic/logger-wrapper';
 	import { onDestroy, onMount } from 'svelte';
 	import Logger from '../../components/create-config/logger.svelte';
-	import { get_config, type LogType } from '../../components/create-config/config';
+	import { get_config, type Config, type LogType } from '../../components/create-config/config';
 
 	let logs: LogType[] = [];
 	let is_destroyed = false;
 	let retry_count = 0;
+	let config: Config;
 
 	const logger_callback: LoggerCallback = (data, status) => {
 		if (status === 'running') {
@@ -47,7 +48,11 @@
 					'\nLogger will be restarted.'
 			);
 			if (!is_destroyed && retry_count < 3) {
-				start_logger(logger_callback, 'analyze');
+				start_logger(
+					logger_callback,
+					'analyze',
+					(config.all_interfaces ? '-i' : '') + (config.ip_filter ? ' -p' : '')
+				);
 				retry_count++;
 			} else if (!is_destroyed && retry_count >= 3) {
 				alert('Tried to start logger 3 times, but failed. Please try again.');
@@ -56,7 +61,11 @@
 			}
 		} else if (status === 'terminated') {
 			if (!is_destroyed && retry_count < 3) {
-				start_logger(logger_callback, 'analyze');
+				start_logger(
+					logger_callback,
+					'analyze',
+					(config.all_interfaces ? '-i' : '') + (config.ip_filter ? ' -p' : '')
+				);
 				retry_count++;
 			} else if (!is_destroyed && retry_count >= 3) {
 				alert('Tried to start logger 3 times, but failed. Please try again.');
@@ -69,8 +78,12 @@
 	};
 
 	onMount(async () => {
-		const config = await get_config();
-		start_logger(logger_callback, 'analyze', config.all_interfaces ? '-i' : '');
+		config = await get_config();
+		start_logger(
+			logger_callback,
+			'analyze',
+			(config.all_interfaces ? '-i' : '') + (config.ip_filter ? ' -p' : '')
+		);
 	});
 	onDestroy(() => {
 		is_destroyed = true;
