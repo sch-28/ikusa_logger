@@ -1,44 +1,44 @@
 name: Build and Deploy
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      
-      - name: Install dependencies and build UI
-        run: |
-          cd ui
-          npm ci
-          npm run build
-          cd ..
-          npm i -g @neutralinojs/neu
-          neu build
-      
-      - name: Copy resources.neu to version folder
-        run: |
-          cp ./dist/ikusa-logger/resources.neu ./version/resources.neu
-      - name: Adjust version number
-        run: |
-          VERSION=$(grep -oP '(?<="version": ")[^"]*' neutralino.config.json)
-          sed -i 's/"version": ".*"/"version": "'"$VERSION"'"/' ./version/version-manifest.json
-      
-      - name: Commit and push changes
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add ./version/resources.neu ./version/version-manifest.json
-          git commit -m "deployed new version"
-          git push
+    build-and-deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+              with:
+                  node-version: 16
+
+            - name: Install dependencies and build UI
+              run: |
+                  cd ui
+                  npm ci
+                  npm run build
+                  cd ..
+                  npm i -g @neutralinojs/neu@9.8.0
+                  neu build
+
+            - name: Copy resources.neu to version folder
+              run: |
+                  cp ./dist/ikusa-logger/resources.neu ./version/resources.neu
+            - name: Adjust version number
+              run: |
+                  VERSION=$(grep -oP '(?<="version": ")[^"]*' neutralino.config.json)
+                  sed -i 's/"version": ".*"/"version": "'"$VERSION"'"/' ./version/version-manifest.json
+
+            - name: Commit and push changes
+              run: |
+                  git config user.name github-actions
+                  git config user.email github-actions@github.com
+                  git add ./version/resources.neu ./version/version-manifest.json
+                  git commit -m "deployed new version"
+                  git push
