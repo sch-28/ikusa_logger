@@ -9,6 +9,7 @@
 	import GoMarkGithub from 'svelte-icons/go/GoMarkGithub.svelte';
 	import Icon from '../svelte-ui/elements/icon.svelte';
 	import FaDiscord from 'svelte-icons/fa/FaDiscord.svelte';
+
 	let loading = false;
 	let status: LoggerStatus;
 	let update_available = false;
@@ -56,13 +57,13 @@
 		try {
 			loading = true;
 			console.log('Checking for updates');
-			await check_for_updates();
+			await check_for_updates().catch((e) => console.error(e));
 			console.log('Checking status');
 			status = await check_status();
 			console.log('Starting logger');
 		} catch (e) {
 			console.error(e);
-			alert('Upadating went wrong, check your internet connection.' + (e as Error).message || e);
+			/* alert('Upadating went wrong, check your internet connection.' + (e as Error).message || e); */
 		}
 		loading = false;
 	});
@@ -95,10 +96,14 @@
 				<Button class="w-32" on:click={update}>Update</Button>
 			{/if}
 
-			{#if status?.npcap_installed && !update_available && !full_update_available}
+			{#if status?.npcap_installed}
 				<p class="text-submarine-500">Npcap found</p>
-			{:else if !update_available && !full_update_available}
-				<p class="text-red-500">Npcap is not installed</p>
+			{:else}
+				<p class="text-red-500 flex justify-center flex-col">
+					Npcap is not installed. <a href="https://npcap.com/dist/npcap-1.78.exe" class="underline"
+						>Download</a
+					>
+				</p>
 			{/if}
 		{/if}
 	</div>
