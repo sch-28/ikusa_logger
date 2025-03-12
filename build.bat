@@ -6,23 +6,17 @@ CALL install.bat
 cd .. 
 xcopy logger\dist\logger dist\ikusa-logger\logger\ /E /Y
 
-:: Copy update script to dist/ikusa-logger/
-xcopy update.bat dist\ikusa-logger\ /Y
 
-:: Build the Frontend
+
+:: Install Dependencines the Frontend
 cd ui 
 CALL npm i
+
+CALL npm i -g @neutralinojs/neu@11.3.1
 
 :: Compile the program
 cd .. 
 CALL neu update
 CALL neu build
 
-:: Timeout for 2 seconds to make sure the resource is free
-::timeout 2 /nobreak
-
-:: Insert Manifest
-::mt.exe -manifest ikusa.manifest -outputresource:dist\ikusa-logger\ikusa-logger-win_x64.exe;1
-
-:: Compile the installer
-::ISCC build-setup.iss
+echo Build completed. Compiled files are in dist/ikusa-logger/
