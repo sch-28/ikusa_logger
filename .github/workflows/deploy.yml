@@ -24,7 +24,7 @@ jobs:
                   npm ci
                   npm run build
                   cd ..
-                  npm i -g @neutralinojs/neu@9.8.0
+                  npm i -g @neutralinojs/neu@11.3.1
                   neu build
 
             - name: Copy resources.neu to version folder
