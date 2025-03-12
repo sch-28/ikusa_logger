@@ -18,11 +18,12 @@ Visualize your captured logs with this [website](https://github.com/sch-28/ikusa
 ## Usage
 1. Start `ikusa-logger-win_x64.exe` located in `/dist/ikusa-logger/`
 2. Click on the `Record` button
-3. After you are done recording, make sure to order the names of the players in the correct order! (This is important for the website to work correctly)
-The order should be: Family-Name-1 kills/died to Family-Name-2 from Enemy-Guild
+3. After you are done recording, make sure to order the names of the players in the correct order!
+The order should be: `Family-Name-1 kills/died to Family-Name-2 from Enemy-Guild`
 4. Download the logs by clicking `Save` or upload the logs directly to the website by clicking `Upload`
 
 If you noticed that you have chosen the wrong name order, you can open the `.log` file again with the logger and adjust the names.
+
 https://github.com/sch-28/ikusa_logger/assets/42447473/ebcd67f0-c43a-4d12-b38d-79a7542e92ed
 
 ## Startup Issue
