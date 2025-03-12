@@ -22,7 +22,6 @@ jobs:
               run: |
                   cd ui
                   npm ci
-                  npm run build
                   cd ..
                   npm i -g @neutralinojs/neu@11.3.1
                   neu build
