@@ -3,9 +3,16 @@
 	import { start_logger, type LoggerCallback } from '../../logic/logger-wrapper';
 	import Logger from '../../components/create-config/logger.svelte';
 	import { open_file } from '../../logic/file';
-	import { get_config, type LogType } from '../../components/create-config/config';
+	import { get_config, type Log, type LogType } from '../../components/create-config/config';
+	import { filesystem } from '@neutralinojs/lib';
+	import LogEditor from '../../components/create-config/log-editor.svelte';
 	let logs: LogType[] = [];
+	let combat_logs: Log[] = [];
 	let loading = false;
+
+	let is_network = false;
+
+	const log_regex = /\[(.+)\] (\w+) (died to|has killed) (\w+) from (\w+|-1)(?: \((\w+),(\w+)\))?/;
 
 	const logger_callback: LoggerCallback = (data, status) => {
 		if (status === 'running') {
@@ -46,17 +53,43 @@
 
 	async function open_pcap() {
 		logs = [];
-		const file = await open_file();
+		const filePaths = await open_file();
 		const config = await get_config();
-		start_logger(
-			logger_callback,
-			'analyze',
-			'-f ' + '"' + file + '"' + (config.ip_filter ? ' -p' : '')
-		);
-		loading = true;
+		if ((filePaths.length > 0 && filePaths[0].includes('.txt')) || filePaths[0].includes('.log')) {
+			const filePath = filePaths[0];
+			is_network = false;
+			let data = await filesystem.readFile(filePath);
+			if (!data) return;
+			logs = [];
+			const lines = data.split('\n');
+			for (const line of lines) {
+				const match = line.match(log_regex);
+				if (match) {
+					const new_combat_log: Log = {
+						time: match[1],
+						names: [match[2], match[4], match[5], match[6], match[7]],
+						kill: match[3] === 'has killed'
+					};
+					combat_logs.push(new_combat_log);
+				}
+			}
+			combat_logs = combat_logs;
+			console.log(combat_logs);
+		} else {
+			is_network = true;
+			start_logger(
+				logger_callback,
+				'analyze',
+				'-f ' + '"' + filePaths + '"' + (config.ip_filter ? ' -p' : '')
+			);
+			loading = true;
+		}
 	}
 </script>
 
 <Button size="sm" class="mb-2 shrink-0" on:click={open_pcap}>Open File</Button>
-
-<Logger {logs} height={130} {loading} />
+{#if is_network}
+	<Logger {logs} height={130} {loading} />
+{:else}
+	<LogEditor logs={combat_logs} height={130} {loading} />
+{/if}
