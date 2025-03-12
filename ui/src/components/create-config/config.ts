@@ -20,6 +20,12 @@ export type LogType = {
 	hex: string;
 };
 
+export type Log = {
+	time: string;
+	names: string[];
+	kill: boolean;
+}
+
 export function get_date() {
 	const today = new Date();
 	const isoDate = today.toISOString().substr(0, 10);
@@ -96,7 +102,7 @@ export async function get_config(): Promise<Config> {
 			auto_scroll: true,
 			include_characters: true,
 			all_interfaces: true,
-			ip_filter: true
+			ip_filter: false
 		};
 	}
 }
