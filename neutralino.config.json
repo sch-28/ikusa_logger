@@ -1,6 +1,6 @@
 {
 	"applicationId": "ikusa.logger",
-	"version": "1.8.0",
+	"version": "2.0.0",
 	"defaultMode": "window",
 	"documentRoot": "/ui/build/",
 	"url": "/",
@@ -24,12 +24,12 @@
 	"modes": {
 		"window": {
 			"title": "Ikusa Logger",
-			"width": 600,
-			"height": 400,
-			"minWidth": 600,
-			"minHeight": 400,
-			"maxWidth": 600,
-			"maxHeight": 400,
+			"width": 750,
+			"height": 500,
+			"minWidth": 750,
+			"minHeight": 500,
+			"maxWidth": 750,
+			"maxHeight": 500,
 			"icon": "/ui/static/logo.png",
 			"exitProcessOnClose": false,
 			"enableInspector": false
@@ -39,11 +39,15 @@
 		"binaryName": "ikusa-logger",
 		"resourcesPath": "/ui/build/",
 		"extensionsPath": "/extensions/",
-		"binaryVersion": "4.10.0",
-		"clientVersion": "3.8.2",
+		"binaryVersion": "5.6.0",
+		"clientVersion": "5.6.0",
 		"frontendLibrary": {
 			"patchFile": "/ui/src/app.html",
-			"devUrl": "http://localhost:5173"
+			"devUrl": "http://localhost:5173",
+			"projectPath": "/ui/",
+			"initCommand": "npm install",
+			"devCommand": "npm run dev",
+			"buildCommand": "npm run build"
 		}
 	}
 }
