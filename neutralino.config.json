@@ -1,6 +1,6 @@
 {
 	"applicationId": "ikusa.logger",
-	"version": "2.0.0",
+	"version": "1.8.1",
 	"defaultMode": "window",
 	"documentRoot": "/ui/build/",
 	"url": "/",
