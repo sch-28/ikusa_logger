@@ -6,7 +6,7 @@ html {
 	font-family: monospace;
 	@apply text-foreground-secondary bg-background;
 	color-scheme: dark;
-	font-size: 12px;
+	font-size: 2.4vw;
 }
 
 [type='checkbox']:checked {
