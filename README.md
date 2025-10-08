@@ -7,13 +7,13 @@ Visualize your captured logs with this [website](https://github.com/sch-28/ikusa
 ## Prerequisites
 - [Npcap - 1.7.8](https://npcap.com/dist/)
 - [Node.js - 16+](https://nodejs.org/en/download/)
-- [Python - 3+](https://www.python.org/downloads/)
-- (optional) [Wireshark](https://www.wireshark.org/download.html)
+- [Python - 3+](https://www.python.org/downloads/) 
+  - In the installer, make sure to check "Add Python to environment variables"
 
 ## Installation
 1. Clone the repository
 2. Make sure you have the prerequisites installed (Node.js and Python)
-3. Run `build.bat`
+4. Run `build.bat`
 
 ## Usage
 1. Start `ikusa-logger-win_x64.exe` located in `/dist/ikusa-logger/`
