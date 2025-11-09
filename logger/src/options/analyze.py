@@ -1,9 +1,8 @@
 import os
 import re
 from scapy.all import sniff, rdpcap, get_if_list
-from scapy.arch.windows import get_windows_if_list
 from time import localtime, strftime
-from .. import config
+import sys
 
 
 def dec(bytes):
@@ -14,15 +13,15 @@ def dec(bytes):
 
 def extract_string(hex, offset, length):
     # check whether the string begins with a 0x00, if so, return -1
-    if hex[offset : offset + 2] == "00":
+    if hex[offset: offset + 2] == "00":
         return -1
 
     # check whether the characters are always spaced by 1 byte (0x00), if not, return -1
     test_offset = offset + 2
     actual_length = length
     while test_offset < offset + length - 2:
-        byte = hex[test_offset : test_offset + 2]
-        previous_byte = hex[test_offset - 2 : test_offset]
+        byte = hex[test_offset: test_offset + 2]
+        previous_byte = hex[test_offset - 2: test_offset]
 
         if previous_byte == "00":
             actual_length = test_offset - offset
@@ -36,7 +35,7 @@ def extract_string(hex, offset, length):
         if length < 0:
             raise ValueError("Package too short")
 
-        return dec(bytes.fromhex(hex[offset : offset + actual_length]))
+        return dec(bytes.fromhex(hex[offset: offset + actual_length]))
     except ValueError as e:
         # print(e, flush=True)
         return -1
@@ -57,7 +56,6 @@ def package_handler(package, output, ip_filter=True):
 
     package_src = package["IP"].src
 
-
     # checks if the package derives from bdo
     is_bdo_ip = (not ip_filter) or (
         len(
@@ -71,7 +69,7 @@ def package_handler(package, output, ip_filter=True):
         )
         > 0
     )
-    
+
     # checkes if the packages comes from a tcp stream
     uses_tcp = "TCP" in package and hasattr(package["TCP"].payload, "load")
     if is_bdo_ip and uses_tcp:
@@ -158,25 +156,36 @@ def open_pcap(file, output, ip_filter=True):
     else:
         sniff(offline=file, filter="tcp", prn=package_handler, store=0)
 
-    print(f"Logs saved under: {output}\nYou can close this window now.", flush=True)
+    print(f"Logs saved under: {
+          output}\nYou can close this window now.", flush=True)
+
+
+def read_network_interfaces():
+    if sys.platform == "win32":
+        # Import Windows-specific function
+        from scapy.arch.windows import get_windows_if_list
+        winList = get_windows_if_list()
+        return {e["guid"]: e["name"] for e in winList}
+
+    else:
+        # Use Linux-specific function
+        return {iface: iface for iface in get_if_list()}
 
 
 def start_sniff(output, all_interfaces=True, ip_filter=True):
     try:
         print("Reading Network...", flush=True)
-        winList = get_windows_if_list()
+        guidToNameDict = read_network_interfaces()
         intfList = get_if_list()
-        guidToNameDict = {e["guid"]: e["name"] for e in winList}
         namesAllowedList = [guidToNameDict.get(e) for e in intfList]
         namesAllowedList = list(filter(None, namesAllowedList))
-        # print("Network Interfaces: ", namesAllowedList, flush=True)
+
         sniff(
             filter="tcp",
             prn=lambda x: package_handler(x, output, ip_filter),
             store=0,
-            iface=namesAllowedList
-            if len(namesAllowedList) > 0 and all_interfaces
-            else None,
+            iface=namesAllowedList if len(
+                namesAllowedList) > 0 and all_interfaces else None,
         )
     except Exception as e:
         print("Error while reading network.", flush=True)

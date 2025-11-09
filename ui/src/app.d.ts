@@ -2,6 +2,7 @@
 // for information about these interfaces
 declare global {
 	const NL_APPVERSION: string;
+	const NL_OS: 'Windows' | 'Linux';
 	namespace App {
 		// interface Error {}
 		// interface Locals {}
