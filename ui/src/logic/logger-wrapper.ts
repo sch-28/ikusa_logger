@@ -35,7 +35,7 @@ const arg_mapping = {
 	status: '-s',
 	update: '-u',
 	record: '-r',
-	analyze: '-a',
+	analyze: '-a'
 } as const;
 
 let logger: os.SpawnedProcess | null = null;
@@ -68,9 +68,26 @@ export async function start_logger(
 	}
 
 	const extra_args = data ? ' ' + data : '';
+
 	let logger_command = 'logger\\logger ';
-	if (dev) {
-		logger_command = 'logger\\dist\\logger\\logger ';
+
+	switch (NL_OS) {
+		case 'Windows': {
+			if (dev) {
+				logger_command = 'logger\\dist\\logger\\logger ';
+			} else {
+				logger_command = 'logger\\logger ';
+			}
+			break;
+		}
+		case 'Linux': {
+			if (dev) {
+				logger_command = './logger/dist/logger/logger ';
+			} else {
+				logger_command = './logger/logger ';
+			}
+			break;
+		}
 	}
 
 	console.log('Starting logger with command: ' + logger_command + arg_mapping[arg] + extra_args);

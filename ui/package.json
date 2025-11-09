@@ -44,6 +44,7 @@
 	"type": "module",
 	"dependencies": {
 		"@neutralinojs/lib": "^5.6.0",
+		"@neutralinojs/neu": "^11.3.1",
 		"autoprefixer": "^10.4.14",
 		"config-ini-parser": "^1.6.1",
 		"svelte-select": "^5.6.1"
