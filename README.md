@@ -14,7 +14,7 @@ nodejs libcap python3
 4. Run `build.sh`
 
 ## Usage
-1. Start `ikusa-logger-linux_x64` located in `/dist/ikusa-logger/`
+1. Start `start.sh`
 2. Click on the `Record` button
 3. After you are done recording, make sure to order the names of the players in the correct order!
 The order should be: `Family-Name-1 kills/died to Family-Name-2 from Enemy-Guild`
