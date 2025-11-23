@@ -5,18 +5,16 @@ https://user-images.githubusercontent.com/42447473/184521641-e66a6bc4-191f-4c60-
 
 Visualize your captured logs with this [website](https://github.com/sch-28/ikusa).
 ## Prerequisites
-- [Npcap - 1.7.8](https://npcap.com/dist/)
-- [Node.js - 16+](https://nodejs.org/en/download/)
-- [Python - 3+](https://www.python.org/downloads/) 
-  - In the installer, make sure to check "Add Python to environment variables"
-
+```
+nodejs libcap python3
+```
 ## Installation
 1. Clone the repository
 2. Make sure you have the prerequisites installed (Node.js and Python)
-4. Run `build.bat`
+4. Run `build.sh`
 
 ## Usage
-1. Start `ikusa-logger-win_x64.exe` located in `/dist/ikusa-logger/`
+1. Start `ikusa-logger-linux_x64` located in `/dist/ikusa-logger/`
 2. Click on the `Record` button
 3. After you are done recording, make sure to order the names of the players in the correct order!
 The order should be: `Family-Name-1 kills/died to Family-Name-2 from Enemy-Guild`
