@@ -15,6 +15,8 @@ Visualize your captured logs with this [website](https://github.com/sch-28/ikusa
 2. Make sure you have the prerequisites installed (Node.js and Python)
 4. Run `build.bat`
 
+For linux users: [linux-version](https://github.com/sch-28/ikusa_logger/tree/linux)
+
 ## Usage
 1. Start `ikusa-logger-win_x64.exe` located in `/dist/ikusa-logger/`
 2. Click on the `Record` button
