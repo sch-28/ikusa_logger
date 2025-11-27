@@ -74,7 +74,6 @@
 				}
 			}
 			combat_logs = combat_logs;
-			console.log(combat_logs);
 		} else {
 			is_network = true;
 			start_logger(

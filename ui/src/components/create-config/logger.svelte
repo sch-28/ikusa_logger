@@ -22,10 +22,11 @@
 	import Icon from '../../svelte-ui/elements/icon.svelte';
 	import Select from './select.svelte';
 	import { dev } from '$app/environment';
+	import GuildInfos from './guild-infos.svelte';
 
 	export let logs: LogType[];
-	export let height: number = 155;
-	export let loading: boolean = false;
+	export let height = 155;
+	export let loading = false;
 
 	let possible_name_offsets: { offset: number; count: number }[][] = [];
 	let name_indicies: number[] = [0, 0, 0, 0, 0];
@@ -265,6 +266,22 @@
 	}
 
 	$: disabled = logs.length === 0 || loading;
+
+	$: own_guild_member_count = logs.reduce((players, log) => {
+		const name = log.names[player_one_index].name;
+		if (!players.includes(name)) {
+			players.push(name);
+		}
+		return players;
+	}, [] as string[]).length;
+
+	$: enemy_count = logs.reduce((players, log) => {
+		const name = log.names[player_two_index].name;
+		if (!players.includes(name)) {
+			players.push(name);
+		}
+		return players;
+	}, [] as string[]).length;
 </script>
 
 {#if logs.length > 0}
@@ -277,7 +294,21 @@
 	<div class="flex gap-1 items-center justify-start w-full px-1">
 		<!-- <p class="w-16">Kill offset:</p>-->
 		<!-- <Select options={possible_kill_offsets} bind:selected_value={kill_index} /> -->
-		{logs.length} Logs
+		<button
+			on:click={() => {
+				ModalManager.open(GuildInfos, {
+					logs: logs.map((l) => ({
+						names: l.names.map((n) => n.name)
+					})),
+					guild_index,
+					player_one_index,
+					player_two_index
+				});
+			}}
+			class="flex cursor-pointer items-end gap-2 bg-gray-700 p-2 rounded-lg"
+		>
+			{logs.length} Logs | ({own_guild_member_count} vs. {enemy_count})
+		</button>
 		<div class="ml-2">
 			<Checkbox bind:checked={auto_scroll} />
 			<span>Auto scroll</span>

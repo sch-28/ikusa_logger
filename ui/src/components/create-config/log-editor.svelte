@@ -1,31 +1,25 @@
 <script lang="ts">
 	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { open_save_location } from '../../logic/file';
+	import IoMdInfo from 'svelte-icons/io/IoIosInformationCircleOutline.svelte';
 	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
-	import Checkbox from '../../svelte-ui/elements/checkbox.svelte';
 	import {
-		update_config,
-		type Config,
-		type LogType,
 		get_date,
 		get_formatted_date,
-		get_config,
-		hexToString,
 		type Log
 	} from './config';
 	import { filesystem, os } from '@neutralinojs/lib';
-	import { onMount } from 'svelte';
 	import { ModalManager } from '../../svelte-ui/modal/modal-store';
-	import Icon from '../../svelte-ui/elements/icon.svelte';
 	import Select from './select.svelte';
 	import { dev } from '$app/environment';
 	import Button from '../../svelte-ui/elements/button.svelte';
+	import GuildInfos from './guild-infos.svelte';
+	import Icon from '../../svelte-ui/elements/icon.svelte';
 
 	export let logs: Log[];
-	export let height: number = 155;
-	export let loading: boolean = false;
+	export let height = 155;
+	export let loading = false;
 
-	let name_indicies: number[] = [0, 0, 0, 0, 0];
 
 	let player_one_index = 0;
 	let player_two_index = 1;
@@ -98,6 +92,22 @@
 	}
 
 	$: disabled = logs.length === 0 || loading;
+
+	$: own_guild_member_count = logs.reduce((players, log) => {
+		const name = log.names[player_one_index];
+		if (!players.includes(name)) {
+			players.push(name);
+		}
+		return players;
+	}, [] as string[]).length;
+
+	$: enemy_count = logs.reduce((players, log) => {
+		const name = log.names[player_two_index];
+		if (!players.includes(name)) {
+			players.push(name);
+		}
+		return players;
+	}, [] as string[]).length;
 </script>
 
 {#if logs.length > 0}
@@ -107,10 +117,23 @@
 	>
 {/if}
 <div class="flex flex-col gap-2 items-center w-full relative">
-	<div class="flex gap-1 items-center justify-start w-full px-1">
+	<div class="flex gap-1 items-center justify-start w-full">
 		<!-- <p class="w-16">Kill offset:</p>-->
 		<!-- <Select options={possible_kill_offsets} bind:selected_value={kill_index} /> -->
-		{logs.length} Logs
+		<button
+			on:click={() => {
+				ModalManager.open(GuildInfos, {
+					logs: logs,
+					guild_index,
+                    player_one_index,
+                    player_two_index,
+				});
+			}}
+            class="flex cursor-pointer items-end gap-2 bg-gray-700 p-2 rounded-lg"
+		>
+		{logs.length} Logs | 
+			({own_guild_member_count} vs. {enemy_count}) 
+		</button>
 	</div>
 	<div class="w-full overflow-auto flex flex-col" style="height: {height}px;">
 		{#if loading && logs.length === 0}
@@ -148,11 +171,6 @@
 						selected_value={guild_index}
 						on_change={(e) => update_names('guild', e)}
 					/>
-					<!-- <div class="ml-auto hidden group-hover:flex items-center">
-						<button on:click={() => null}>
-							<Icon icon={MdDelete} class="self-center text-red-500" />
-						</button>
-					</div> -->
 				</div>
 			</VirtualList>
 		{/key}

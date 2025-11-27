@@ -13,6 +13,8 @@ nodejs libcap python3
 2. Make sure you have the prerequisites installed (Node.js and Python)
 4. Run `build.sh`
 
+For linux users: [linux-version](https://github.com/sch-28/ikusa_logger/tree/linux)
+
 ## Usage
 1. Start `start.sh`
 2. Click on the `Record` button
