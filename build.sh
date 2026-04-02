@@ -48,6 +48,18 @@ neu() {
 neu update || error_exit "Neutralino.js update failed."
 neu build || error_exit "Neutralino.js build failed."
 
+# Patch ELF interpreter if the system uses a non-/lib64 path (e.g. Ubuntu/Debian/Pop!_OS)
+INTERP=$(patchelf --print-interpreter ./dist/ikusa-logger/logger/logger 2>/dev/null)
+if [ -n "$INTERP" ] && [ ! -e "$INTERP" ]; then
+    SYSTEM_INTERP=$(find /lib /lib64 /usr/lib -name "ld-linux-x86-64.so.2" 2>/dev/null | head -n1)
+    if [ -n "$SYSTEM_INTERP" ]; then
+        log "Patching ELF interpreter: $INTERP -> $SYSTEM_INTERP"
+        patchelf --set-interpreter "$SYSTEM_INTERP" ./dist/ikusa-logger/logger/logger || error_exit "patchelf failed. Install it with: sudo apt install patchelf"
+    else
+        error_exit "ELF interpreter '$INTERP' not found on this system and no replacement located. Install patchelf and check your libc."
+    fi
+fi
+
 # allow scapy to read network
 log "Setting capabilities for the logger binary..."
 sudo setcap cap_net_raw=eip ./dist/ikusa-logger/ikusa-logger-linux_x64
