@@ -7,6 +7,20 @@
 		%sveltekit.head%
 
 		<script src="%PUBLIC_URL%/__neutralino_globals.js"></script>
+		<script>
+			window.addEventListener('unhandledrejection', function (event) {
+				if (
+					event.reason instanceof TypeError &&
+					event.reason.message &&
+					event.reason.message.toLowerCase().includes('importing a module script failed')
+				) {
+					event.preventDefault();
+					setTimeout(function () {
+						window.location.reload();
+					}, 500);
+				}
+			});
+		</script>
 	</head>
 	<body data-sveltekit-preload-data="hover" class="dark">
 		<div style="display: contents">%sveltekit.body%</div>
