@@ -11,6 +11,7 @@ export type Config = {
 	include_characters: boolean;
 	all_interfaces: boolean;
 	ip_filter: boolean;
+	live_output_path: string;
 };
 
 export type LogType = {
@@ -102,7 +103,8 @@ export async function get_config(): Promise<Config> {
 			auto_scroll: true,
 			include_characters: true,
 			all_interfaces: true,
-			ip_filter: false
+			ip_filter: false,
+			live_output_path: ''
 		};
 	}
 }

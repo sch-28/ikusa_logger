@@ -55,6 +55,7 @@
 			[{ offset: config.guild, count: 1 }]
 		];
 		auto_scroll = config.auto_scroll;
+		live_output_path = config.live_output_path || '';
 		personal_family_name = await storage.getData(personal_stats_storage_key).catch(() => '');
 	});
 
@@ -77,6 +78,8 @@
 		if (logs.length < 50 || logs.length % 100 === 0) {
 			possible_kill_offsets = find_kill_offset(logs).map((offset) => offset);
 			calculate_config();
+		} else {
+			write_live_output();
 		}
 	}
 
@@ -134,6 +137,7 @@
 			kill: possible_kill_offsets[kill_index]
 		};
 		await update_config(config);
+		await write_live_output();
 	}
 
 	$: get_name_options = (i: number, log: LogType) => {
@@ -211,6 +215,7 @@
 			}
 			guild_index = new_value;
 		}
+		update_config_wrapper();
 	}
 
 	function scroll(top?: boolean) {
@@ -251,6 +256,11 @@
 	async function save_logs() {
 		const path = await open_save_location(get_formatted_date(get_date()) + '.log');
 		filesystem.writeFile(path, get_logs_string());
+	}
+
+	async function write_live_output() {
+		if (!live_output_path || logs.length === 0) return;
+		await filesystem.writeFile(live_output_path, get_logs_string());
 	}
 
 	async function upload() {

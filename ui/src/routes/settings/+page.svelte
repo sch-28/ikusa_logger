@@ -11,6 +11,7 @@
 
 	let selected_interface = 0;
 	let ip_filter = false;
+	let live_output_path = '';
 
 	async function update_interface() {
 		if (config) {
@@ -24,6 +25,22 @@
 		}
 	}
 
+	async function pick_live_output_path() {
+		const result = await os.showSaveDialog('Choose live output file location', {
+			defaultPath: live_output_path || 'ikusa_live.log',
+			filters: [{ name: 'Log file', extensions: ['log'] }]
+		});
+		if (result) {
+			live_output_path = result;
+			config = await update_config({ ...config, live_output_path });
+		}
+	}
+
+	async function clear_live_output_path() {
+		live_output_path = '';
+		config = await update_config({ ...config, live_output_path: '' });
+	}
+
 	$: {
 		ip_filter;
 		update_ip_filter();
@@ -34,6 +51,7 @@
 		selected_interface =
 			config.all_interfaces === true || config.all_interfaces === undefined ? 0 : 1;
 		ip_filter = config.ip_filter === true || config.ip_filter === undefined ? true : false;
+		live_output_path = config.live_output_path || '';
 	});
 
 	async function restart_dev() {
@@ -72,6 +90,22 @@
 			<p class="text-xs text-gray-400">Filter packets by known game server IPs</p>
 		</div>
 		<Toggle bind:checked={ip_filter} />
+	</div>
+	<div>
+		<Label>Live Output File</Label>
+		<p class="text-xs text-gray-400 mb-1">
+			When set, logs are written to this file in real-time as they appear (and rewritten on index
+			changes). Leave empty to disable.
+		</p>
+		<div class="flex gap-2 items-center">
+			<span class="text-sm truncate text-gray-300 flex-1 min-w-0">
+				{live_output_path || 'Not set'}
+			</span>
+			<Button on:click={pick_live_output_path}>Browse</Button>
+			{#if live_output_path}
+				<Button color="secondary" on:click={clear_live_output_path}>Clear</Button>
+			{/if}
+		</div>
 	</div>
 
 	<div class="rounded-lg border border-gray-700 p-3">
