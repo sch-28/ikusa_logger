@@ -97,9 +97,9 @@
 			When set, logs are written to this file in real-time as they appear (and rewritten on index
 			changes). Leave empty to disable.
 		</p>
-		<div class="flex gap-2 items-center">
-			<span class="text-sm truncate text-gray-300 flex-1 min-w-0">
-				{live_output_path || 'Not set'}
+		<div class="flex gap-2 items-center overflow-hidden">
+			<span class="text-sm truncate text-gray-300 min-w-0 flex-1" title={live_output_path}>
+				{live_output_path ? live_output_path.split(/[\\/]/).slice(-2).join('/') : 'Not set'}
 			</span>
 			<Button on:click={pick_live_output_path}>Browse</Button>
 			{#if live_output_path}
