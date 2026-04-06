@@ -88,7 +88,7 @@
 
 <Button size="sm" class="mb-2 shrink-0" on:click={open_pcap}>Open File</Button>
 {#if is_network}
-	<Logger {logs} height={130} {loading} />
+	<Logger {logs} height={240} {loading} />
 {:else}
-	<LogEditor logs={combat_logs} height={130} {loading} />
+	<LogEditor logs={combat_logs} height={240} {loading} />
 {/if}
