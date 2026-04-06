@@ -1,7 +1,6 @@
 <script lang="ts">
 	import VirtualList from '@sveltejs/svelte-virtual-list';
 	import { open_save_location } from '../../logic/file';
-	import IoMdInfo from 'svelte-icons/io/IoIosInformationCircleOutline.svelte';
 	import LoadingIndicator from '../../svelte-ui/elements/loading-indicator.svelte';
 	import {
 		get_date,
@@ -14,16 +13,25 @@
 	import { dev } from '$app/environment';
 	import Button from '../../svelte-ui/elements/button.svelte';
 	import GuildInfos from './guild-infos.svelte';
-	import Icon from '../../svelte-ui/elements/icon.svelte';
+	import { onMount } from 'svelte';
 
 	export let logs: Log[];
 	export let height = 155;
 	export let loading = false;
 
+	const personal_stats_cache_key = 'ikusa_logger_personal_family_name';
+	let personal_family_name = '';
 
 	let player_one_index = 0;
 	let player_two_index = 1;
 	let guild_index = 2;
+
+	function calculate_kd(kills: number, deaths: number) {
+		if (deaths === 0) {
+			return kills > 0 ? kills.toFixed(2) : '0.00';
+		}
+		return (kills / deaths).toFixed(2);
+	}
 
 	function update_names(target: 'player_one' | 'player_two' | 'guild', e: Event) {
 		if (target === 'player_one') {
@@ -108,6 +116,58 @@
 		}
 		return players;
 	}, [] as string[]).length;
+
+	$: alliance_overview = logs.reduce(
+		(acc, log) => {
+			const own_member = log.names[player_one_index] || '';
+			const enemy_member = log.names[player_two_index] || '';
+			if (own_member) acc.own.members.add(own_member);
+			if (enemy_member) acc.enemy.members.add(enemy_member);
+			if (log.kill) {
+				acc.own.kills += 1;
+				acc.enemy.deaths += 1;
+			} else {
+				acc.own.deaths += 1;
+				acc.enemy.kills += 1;
+			}
+			return acc;
+		},
+		{
+			own: { members: new Set<string>(), kills: 0, deaths: 0 },
+			enemy: { members: new Set<string>(), kills: 0, deaths: 0 }
+		}
+	);
+
+	$: personal_stats = logs.reduce(
+		(acc, log) => {
+			if (!personal_family_name.trim()) {
+				return acc;
+			}
+			const killer = log.kill ? log.names[player_one_index] : log.names[player_two_index];
+			const victim = log.kill ? log.names[player_two_index] : log.names[player_one_index];
+			if (killer === personal_family_name.trim()) {
+				acc.kills += 1;
+			}
+			if (victim === personal_family_name.trim()) {
+				acc.deaths += 1;
+			}
+			return acc;
+		},
+		{ kills: 0, deaths: 0 }
+	);
+
+	function update_personal_family_name(value: string) {
+		personal_family_name = value;
+		localStorage.setItem(personal_stats_cache_key, personal_family_name);
+	}
+
+	function handle_personal_family_name_input(e: Event) {
+		update_personal_family_name((e.currentTarget as HTMLInputElement).value);
+	}
+
+	onMount(() => {
+		personal_family_name = localStorage.getItem(personal_stats_cache_key) || '';
+	});
 </script>
 
 {#if logs.length > 0}
@@ -118,22 +178,57 @@
 {/if}
 <div class="flex flex-col gap-2 items-center w-full relative">
 	<div class="flex gap-1 items-center justify-start w-full">
-		<!-- <p class="w-16">Kill offset:</p>-->
-		<!-- <Select options={possible_kill_offsets} bind:selected_value={kill_index} /> -->
-		<button
-			on:click={() => {
-				ModalManager.open(GuildInfos, {
-					logs: logs,
-					guild_index,
-                    player_one_index,
-                    player_two_index,
-				});
-			}}
-            class="flex cursor-pointer items-end gap-2 bg-gray-700 p-2 rounded-lg"
-		>
-		{logs.length} Logs | 
-			({own_guild_member_count} vs. {enemy_count}) 
-		</button>
+		<p class="text-xs sm:text-sm text-gray-300">{logs.length} logs</p>
+	</div>
+	<div
+		class="w-full bg-gray-800/60 rounded-lg p-2.5 sm:p-3 grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs sm:text-sm"
+	>
+		<div class="rounded-lg border border-gray-700 p-3">
+			<div class="flex items-center justify-between gap-2">
+				<p class="text-xs uppercase tracking-wide text-gray-400">LIVE WAR OVERVIEW</p>
+				<button
+					class="bg-gray-700 px-2 py-1 rounded-md text-xs"
+					on:click={() => {
+						ModalManager.open(GuildInfos, {
+							logs: logs,
+							guild_index,
+							player_one_index,
+							player_two_index
+						});
+					}}>Alliance overview</button
+				>
+			</div>
+			<div class="mt-2 grid grid-cols-1 gap-1.5">
+				<p>
+					Count: <span class="font-semibold">{own_guild_member_count}</span> vs.
+					<span class="font-semibold">{enemy_count}</span>
+				</p>
+				<p>
+					<span class="text-submarine-500">K: {alliance_overview.own.kills}</span>
+					<span class="mx-2 text-red-500">D: {alliance_overview.own.deaths}</span>
+				</p>
+				<p>
+					K/D:
+					<span class="font-semibold">{calculate_kd(alliance_overview.own.kills, alliance_overview.own.deaths)}</span>
+					vs.
+					<span class="font-semibold">{calculate_kd(alliance_overview.enemy.kills, alliance_overview.enemy.deaths)}</span>
+				</p>
+			</div>
+		</div>
+		<div class="rounded-lg border border-gray-700 p-3">
+			<p class="text-xs uppercase tracking-wide text-gray-400">Personal player stats</p>
+			<input
+				class="mt-2 w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs sm:text-sm"
+				placeholder="Family name"
+				value={personal_family_name}
+				on:input={handle_personal_family_name_input}
+			/>
+			<p class="mt-2 text-sm">
+				<span class="text-submarine-500">K: {personal_stats.kills}</span>
+				<span class="mx-2 text-red-500">D: {personal_stats.deaths}</span>
+				<span>K/D: {calculate_kd(personal_stats.kills, personal_stats.deaths)}</span>
+			</p>
+		</div>
 	</div>
 	<div class="w-full overflow-auto flex flex-col" style="height: {height}px;">
 		{#if loading && logs.length === 0}

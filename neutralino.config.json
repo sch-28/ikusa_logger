@@ -24,12 +24,12 @@
 	"modes": {
 		"window": {
 			"title": "Ikusa Logger",
-			"width": 600,
-			"height": 400,
-			"minWidth": 600,
-			"minHeight": 400,
-			"maxWidth": 600,
-			"maxHeight": 400,
+			"width": 1040,
+			"height": 640,
+			"minWidth": 880,
+			"minHeight": 560,
+			"maxWidth": 1920,
+			"maxHeight": 1440,
 			"icon": "/ui/static/logo.png",
 			"exitProcessOnClose": false,
 			"enableInspector": false
