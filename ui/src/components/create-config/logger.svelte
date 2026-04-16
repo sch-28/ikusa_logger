@@ -16,7 +16,7 @@
 		get_config,
 		hexToString
 	} from '../../components/create-config/config';
-	import { filesystem, os } from '@neutralinojs/lib';
+	import { filesystem, os, storage } from '@neutralinojs/lib';
 	import { onMount } from 'svelte';
 	import { ModalManager } from '../../svelte-ui/modal/modal-store';
 	import Icon from '../../svelte-ui/elements/icon.svelte';
@@ -41,6 +41,7 @@
 	let config: Config;
 	let auto_scroll = true;
 	const personal_stats_cache_key = 'ikusa_logger_personal_family_name';
+	const personal_stats_storage_key = 'personal_family_name';
 	let personal_family_name = '';
 
 	onMount(async () => {
@@ -52,7 +53,10 @@
 			[{ offset: config.guild, count: 1 }]
 		];
 		auto_scroll = config.auto_scroll;
-		personal_family_name = localStorage.getItem(personal_stats_cache_key) || '';
+		const stored_family_name = await storage
+			.getData(personal_stats_storage_key)
+			.catch(() => '');
+		personal_family_name = stored_family_name || localStorage.getItem(personal_stats_cache_key) || '';
 	});
 
 	$: {
@@ -350,6 +354,7 @@
 	function update_personal_family_name(value: string) {
 		personal_family_name = value;
 		localStorage.setItem(personal_stats_cache_key, personal_family_name);
+		storage.setData(personal_stats_storage_key, personal_family_name).catch(() => null);
 	}
 
 	function handle_personal_family_name_input(e: Event) {
