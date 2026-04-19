@@ -53,22 +53,45 @@
 	}
 </script>
 
-<div class="h-full flex flex-col gap-2">
-	<div>
-		<Label>Network Interface</Label>
+<div class="h-full flex flex-col gap-3 max-w-sm mx-auto w-full">
+	<div class="rounded-lg border border-gray-700 p-3 flex items-center justify-between gap-4">
+		<div>
+			<p class="text-sm font-medium">Network Interface</p>
+			<p class="text-xs text-gray-400">Which interface to capture packets from</p>
+		</div>
 		<Select
 			options={['All', 'Default']}
 			bind:selected_value={selected_interface}
 			on_change={update_interface}
 		/>
 	</div>
-	<div>
-		<Label>Enable IP Filter</Label>
+
+	<div class="rounded-lg border border-gray-700 p-3 flex items-center justify-between gap-4">
+		<div>
+			<p class="text-sm font-medium">IP Filter</p>
+			<p class="text-xs text-gray-400">Filter packets by known game server IPs</p>
+		</div>
 		<Toggle bind:checked={ip_filter} />
 	</div>
 
-	<div class="mt-auto flex flex-col gap-2">
-		<Button on:click={restart_dev}>Dev Mode</Button>
-		<Button on:click={restart_browser}>Browser Mode</Button>
+	<div class="rounded-lg border border-gray-700 p-3">
+		<p class="text-sm font-medium mb-0.5">Live Output File</p>
+		<p class="text-xs text-gray-400 mb-2">
+			Logs written to this file in real-time. Leave empty to disable.
+		</p>
+		<div class="flex gap-2 items-center">
+			<span class="text-xs truncate text-gray-300 min-w-0 flex-1 bg-gray-900 border border-gray-700 rounded px-2 py-1.5" title={live_output_path}>
+				{live_output_path ? live_output_path.split(/[\\/]/).slice(-2).join('/') : 'Not set'}
+			</span>
+			<Button size="sm" on:click={pick_live_output_path}>Browse</Button>
+			{#if live_output_path}
+				<Button size="sm" color="secondary" on:click={clear_live_output_path}>Clear</Button>
+			{/if}
+		</div>
+	</div>
+
+	<div class="mt-auto flex gap-2">
+		<Button class="flex-1" color="secondary" on:click={restart_dev}>Dev Mode</Button>
+		<Button class="flex-1" color="secondary" on:click={restart_browser}>Browser Mode</Button>
 	</div>
 </div>

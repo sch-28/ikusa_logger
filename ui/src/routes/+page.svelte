@@ -69,7 +69,7 @@
 	});
 </script>
 
-<div class="flex flex-col items-center justify-center gap-2">
+<div class="flex flex-col items-center justify-center gap-2 h-full">
 	<Button class="w-32" on:click={() => goto('/record')}>Record</Button>
 	<Button class="w-32" on:click={() => goto('/open')}>Open</Button>
 	<Button class="w-32" on:click={() => goto('/settings')} color="secondary">Settings</Button>

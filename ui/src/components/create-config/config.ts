@@ -111,6 +111,8 @@ export function copy_to_clipboard(config: Config) {
 	clipboard.writeText(stringify_config(config));
 }
 
+export const PERSONAL_FAMILY_NAME_KEY = 'personal_family_name';
+
 export function calculate_kd(kills: number, deaths: number): string {
 	if (deaths === 0) {
 		return kills > 0 ? kills.toFixed(2) : '0.00';

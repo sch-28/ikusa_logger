@@ -6,6 +6,7 @@
 		get_date,
 		get_formatted_date,
 		calculate_kd,
+		PERSONAL_FAMILY_NAME_KEY,
 		type Log
 	} from './config';
 	import { filesystem, os, storage } from '@neutralinojs/lib';
@@ -20,7 +21,7 @@
 	export let height = 155;
 	export let loading = false;
 
-	const personal_stats_storage_key = 'personal_family_name';
+	const personal_stats_storage_key = PERSONAL_FAMILY_NAME_KEY;
 	let personal_family_name = '';
 
 	let player_one_index = 0;
@@ -128,23 +129,20 @@
 		}
 	);
 
-	$: personal_stats = logs.reduce(
-		(acc, log) => {
-			if (!personal_family_name.trim()) {
+	$: personal_stats = (() => {
+		const name = personal_family_name.trim();
+		if (!name) return { kills: 0, deaths: 0 };
+		return logs.reduce(
+			(acc, log) => {
+				const killer = log.kill ? log.names[player_one_index] : log.names[player_two_index];
+				const victim = log.kill ? log.names[player_two_index] : log.names[player_one_index];
+				if (killer === name) acc.kills += 1;
+				if (victim === name) acc.deaths += 1;
 				return acc;
-			}
-			const killer = log.kill ? log.names[player_one_index] : log.names[player_two_index];
-			const victim = log.kill ? log.names[player_two_index] : log.names[player_one_index];
-			if (killer === personal_family_name.trim()) {
-				acc.kills += 1;
-			}
-			if (victim === personal_family_name.trim()) {
-				acc.deaths += 1;
-			}
-			return acc;
-		},
-		{ kills: 0, deaths: 0 }
-	);
+			},
+			{ kills: 0, deaths: 0 }
+		);
+	})();
 
 	function update_personal_family_name(value: string) {
 		personal_family_name = value;
@@ -154,6 +152,15 @@
 	function handle_personal_family_name_input(e: Event) {
 		update_personal_family_name((e.currentTarget as HTMLInputElement).value);
 	}
+
+	$: ownKillPct = (() => {
+		const t = alliance_overview.own.kills + alliance_overview.own.deaths;
+		return t > 0 ? (alliance_overview.own.kills / t) * 100 : 0;
+	})();
+	$: enemyKillPct = (() => {
+		const t = alliance_overview.enemy.kills + alliance_overview.enemy.deaths;
+		return t > 0 ? (alliance_overview.enemy.kills / t) * 100 : 0;
+	})();
 
 	onMount(async () => {
 		personal_family_name = await storage.getData(personal_stats_storage_key).catch(() => '');
@@ -166,67 +173,20 @@
 		<b>Family-Name-2</b> from <b>Guild</b></span
 	>
 {/if}
-<div class="flex flex-col gap-2 items-center w-full relative">
+<div class="flex flex-col gap-2 items-center w-full h-full relative">
 	<div class="flex gap-1 items-center justify-start w-full">
 		<p class="text-xs sm:text-sm text-gray-300">{logs.length} logs</p>
 	</div>
-	<div
-		class="w-full bg-gray-800/60 rounded-lg p-2.5 sm:p-3 grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs sm:text-sm"
-	>
-		<div class="rounded-lg border border-gray-700 p-3">
-			<div class="flex items-center justify-between gap-2">
-				<p class="text-xs uppercase tracking-wide text-gray-400">LIVE WAR OVERVIEW</p>
-				<button
-					class="bg-gray-700 px-2 py-1 rounded-md text-xs"
-					on:click={() => {
-						ModalManager.open(GuildInfos, {
-							logs: logs,
-							guild_index,
-							player_one_index,
-							player_two_index
-						});
-					}}>Alliance overview</button
-				>
-			</div>
-			<div class="mt-2 grid grid-cols-1 gap-1.5">
-				<p>
-					Count: <span class="font-semibold">{own_guild_member_count}</span> vs.
-					<span class="font-semibold">{enemy_count}</span>
-				</p>
-				<p>
-					<span class="text-submarine-500">K: {alliance_overview.own.kills}</span>
-					<span class="mx-2 text-red-500">D: {alliance_overview.own.deaths}</span>
-				</p>
-				<p>
-					K/D:
-					<span class="font-semibold">{calculate_kd(alliance_overview.own.kills, alliance_overview.own.deaths)}</span>
-					vs.
-					<span class="font-semibold">{calculate_kd(alliance_overview.enemy.kills, alliance_overview.enemy.deaths)}</span>
-				</p>
-			</div>
-		</div>
-		<div class="rounded-lg border border-gray-700 p-3">
-			<p class="text-xs uppercase tracking-wide text-gray-400">Personal player stats</p>
-			<input
-				class="mt-2 w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-xs sm:text-sm"
-				placeholder="Family name"
-				value={personal_family_name}
-				on:input={handle_personal_family_name_input}
-			/>
-			<p class="mt-2 text-sm">
-				<span class="text-submarine-500">K: {personal_stats.kills}</span>
-				<span class="mx-2 text-red-500">D: {personal_stats.deaths}</span>
-				<span>K/D: {calculate_kd(personal_stats.kills, personal_stats.deaths)}</span>
-			</p>
-		</div>
-	</div>
-	<div class="w-full overflow-auto flex flex-col" style="height: {height}px;">
+	<div class="w-full flex gap-2 pb-14" style="height: {height}px;">
+		<div class="w-[550px] flex-shrink-0 rounded-lg border border-gray-700 overflow-hidden p-2 relative h-full">
 		{#if loading && logs.length === 0}
 			<div class="absolute inset-0 flex justify-center items-center mb-14">
 				<LoadingIndicator />
 			</div>
 		{:else if logs.length === 0 && !loading}
-			<p class="text-center text-gray-400">Waiting for logs...</p>
+			<div class="absolute inset-0 flex items-center justify-center">
+				<p class="text-gray-400">Waiting for logs...</p>
+			</div>
 		{/if}
 		{#key logs.length === 0}
 			<VirtualList items={logs} let:item={log}>
@@ -259,8 +219,94 @@
 				</div>
 			</VirtualList>
 		{/key}
+		</div>
+		<!-- Stats panel fills the remaining right space -->
+		<div class="flex-1 flex flex-col gap-2 text-xs h-full overflow-y-auto">
+			<div class="rounded-lg border border-gray-700 p-2.5">
+				<div class="flex items-center justify-between gap-1 mb-1.5">
+					<p class="uppercase tracking-wide text-gray-400">War Overview</p>
+					<button
+						class="bg-gray-700 px-1.5 py-0.5 rounded"
+						on:click={() => {
+							ModalManager.open(GuildInfos, {
+								logs: logs,
+								guild_index,
+								player_one_index,
+								player_two_index
+							});
+						}}>Details</button
+					>
+				</div>
+				{#if logs.length === 0}
+					<p class="text-gray-500">No logs yet</p>
+				{:else}
+					<p class="text-gray-400">{own_guild_member_count} vs {enemy_count} players</p>
+					<p class="mt-1">
+						<span class="text-submarine-500">K {alliance_overview.own.kills}</span>
+						<span class="text-gray-500 mx-1">·</span>
+						<span class="text-red-500">D {alliance_overview.own.deaths}</span>
+						<span class="text-gray-500 mx-1">·</span>
+						<span class="font-semibold">{calculate_kd(alliance_overview.own.kills, alliance_overview.own.deaths)}</span>
+					</p>
+					<p class="text-gray-400 mt-0.5">Enemy K/D: <span class="font-semibold text-foreground-secondary">{calculate_kd(alliance_overview.enemy.kills, alliance_overview.enemy.deaths)}</span></p>
+				{/if}
+			</div>
+			<div class="rounded-lg border border-gray-700 p-2.5">
+				<p class="uppercase tracking-wide text-gray-400 mb-1.5">Personal</p>
+				<input
+					class="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 mb-1.5"
+					placeholder="Family name"
+					value={personal_family_name}
+					on:input={handle_personal_family_name_input}
+				/>
+				{#if !personal_family_name.trim()}
+					<p class="text-gray-500">Enter your family name</p>
+				{:else}
+					<p>
+						<span class="text-submarine-500">K {personal_stats.kills}</span>
+						<span class="text-gray-500 mx-1">·</span>
+						<span class="text-red-500">D {personal_stats.deaths}</span>
+						<span class="text-gray-500 mx-1">·</span>
+						<span class="font-semibold">{calculate_kd(personal_stats.kills, personal_stats.deaths)}</span>
+					</p>
+				{/if}
+			</div>
+			<div class="rounded-lg border border-gray-700 p-2.5">
+				<p class="uppercase tracking-wide text-gray-400 mb-2">K/D Breakdown</p>
+				{#if logs.length === 0}
+					<p class="text-gray-500">No logs yet</p>
+				{:else}
+					<div class="mb-3">
+						<div class="flex justify-between mb-1">
+							<span class="text-gray-400">Your Alliance</span>
+							<span class="font-semibold">{calculate_kd(alliance_overview.own.kills, alliance_overview.own.deaths)}</span>
+						</div>
+						<div class="h-1.5 rounded-full bg-gray-700 overflow-hidden">
+							<div class="h-full bg-submarine-500 transition-all" style="width: {ownKillPct}%"></div>
+						</div>
+						<div class="flex justify-between mt-1 text-gray-500">
+							<span class="text-submarine-500">K {alliance_overview.own.kills}</span>
+							<span class="text-red-500">D {alliance_overview.own.deaths}</span>
+						</div>
+					</div>
+					<div>
+						<div class="flex justify-between mb-1">
+							<span class="text-gray-400">Enemy</span>
+							<span class="font-semibold">{calculate_kd(alliance_overview.enemy.kills, alliance_overview.enemy.deaths)}</span>
+						</div>
+						<div class="h-1.5 rounded-full bg-gray-700 overflow-hidden">
+							<div class="h-full bg-red-500 transition-all" style="width: {enemyKillPct}%"></div>
+						</div>
+						<div class="flex justify-between mt-1 text-gray-500">
+							<span class="text-submarine-500">K {alliance_overview.enemy.kills}</span>
+							<span class="text-red-500">D {alliance_overview.enemy.deaths}</span>
+						</div>
+					</div>
+				{/if}
+			</div>
+		</div>
 	</div>
-	<div class="flex gap-2">
+	<div class="fixed bottom-4 left-0 right-0 flex gap-2 justify-center">
 		<Button class="w-32" on:click={upload} {disabled}>Upload</Button>
 		<Button class="w-32" on:click={save_logs} color="secondary" {disabled}>Save</Button>
 	</div>

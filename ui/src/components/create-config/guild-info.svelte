@@ -9,18 +9,21 @@
 	$: kd = calculate_kd(kills, deaths);
 </script>
 
-<div class="min-w-0">
-	<h4 class="font-semibold mb-1 truncate">{players.length}: {name}</h4>
-	<p class="text-xs mb-1.5">
-		<span class="text-submarine-500">K: {kills}</span>
-		<span class="mx-1 text-gray-500">|</span>
-		<span class="text-red-500">D: {deaths}</span>
-		<span class="mx-1 text-gray-500">|</span>
-		<span>K/D: {kd}</span>
+<div class="rounded-lg bg-white/5 p-2.5 flex flex-col gap-1.5 min-w-0">
+	<div>
+		<p class="text-xs uppercase tracking-wide text-gray-400 truncate">{name}</p>
+		<p class="text-xs text-gray-500">{players.length} players</p>
+	</div>
+	<p class="text-xs">
+		<span class="text-submarine-500">K {kills}</span>
+		<span class="text-gray-500 mx-1">·</span>
+		<span class="text-red-500">D {deaths}</span>
+		<span class="text-gray-500 mx-1">·</span>
+		<span class="font-semibold">{kd}</span>
 	</p>
-	<ul class="list-disc list-inside h-32 max-h-32 overflow-y-auto border p-2">
+	<ul class="text-xs h-28 overflow-y-auto space-y-0.5">
 		{#each players as player}
-			<li class="truncate" title={player}>{player}</li>
+			<li class="truncate text-gray-200" title={player}>{player}</li>
 		{/each}
 	</ul>
 </div>

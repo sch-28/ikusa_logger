@@ -55,22 +55,25 @@
 </script>
 
 {#if logs.length > 0}
-	<div class="grid grid-cols-3 gap-3 max-h-[75vh] max-w-[80vw] overflow-auto px-0.5">
-		<GuildInfo
-			name={'Your Guild'}
-			players={unique_members.map((m) => m.name)}
-			kills={own_stats.kills}
-			deaths={own_stats.deaths}
-		/>
-		{#each guilds as guild}
+	<div class="flex flex-col gap-3 min-w-[480px]">
+		<p class="text-xs uppercase tracking-wide text-gray-400">Alliance Overview</p>
+		<div class="grid gap-2 max-h-[65vh] overflow-auto pr-1" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))">
 			<GuildInfo
-				name={guild}
-				players={unique_enemies.filter((e) => e.guild === guild).map((e) => e.name)}
-				kills={enemy_stats[guild]?.kills || 0}
-				deaths={enemy_stats[guild]?.deaths || 0}
+				name={'Your Guild'}
+				players={unique_members.map((m) => m.name)}
+				kills={own_stats.kills}
+				deaths={own_stats.deaths}
 			/>
-		{/each}
+			{#each guilds as guild}
+				<GuildInfo
+					name={guild}
+					players={unique_enemies.filter((e) => e.guild === guild).map((e) => e.name)}
+					kills={enemy_stats[guild]?.kills || 0}
+					deaths={enemy_stats[guild]?.deaths || 0}
+				/>
+			{/each}
+		</div>
 	</div>
 {:else}
-	<p>No logs available to display guild information.</p>
+	<p class="text-gray-400 text-sm">No logs available.</p>
 {/if}

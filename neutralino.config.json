@@ -1,6 +1,6 @@
 {
 	"applicationId": "ikusa.logger",
-	"version": "1.8.4",
+	"version": "1.9.0",
 	"defaultMode": "window",
 	"documentRoot": "/ui/build/",
 	"url": "/",
@@ -24,12 +24,12 @@
 	"modes": {
 		"window": {
 			"title": "Ikusa Logger",
-			"width": 1040,
-			"height": 640,
-			"minWidth": 1040,
-			"minHeight": 640,
-			"maxWidth": 1040,
-			"maxHeight": 640,
+			"width": 820,
+			"height": 550,
+			"minWidth": 820,
+			"minHeight": 550,
+			"maxWidth": 820,
+			"maxHeight": 550,
 			"icon": "/ui/static/logo.png",
 			"exitProcessOnClose": false,
 			"enableInspector": false
