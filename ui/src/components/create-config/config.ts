@@ -111,6 +111,13 @@ export function copy_to_clipboard(config: Config) {
 	clipboard.writeText(stringify_config(config));
 }
 
+export function calculate_kd(kills: number, deaths: number): string {
+	if (deaths === 0) {
+		return kills > 0 ? kills.toFixed(2) : '0.00';
+	}
+	return (kills / deaths).toFixed(2);
+}
+
 export function hexToString(hex: string) {
 	let string = '';
 	for (let i = 0; i < hex.length; i += 2) {

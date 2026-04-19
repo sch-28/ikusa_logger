@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { calculate_kd } from './config';
+
 	export let name: string;
 	export let players: string[];
 	export let kills = 0;
 	export let deaths = 0;
 
-	$: kd = deaths === 0 ? (kills > 0 ? kills.toFixed(2) : '0.00') : (kills / deaths).toFixed(2);
+	$: kd = calculate_kd(kills, deaths);
 </script>
 
 <div class="min-w-0">

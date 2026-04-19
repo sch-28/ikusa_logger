@@ -5,9 +5,10 @@
 	import {
 		get_date,
 		get_formatted_date,
+		calculate_kd,
 		type Log
 	} from './config';
-	import { filesystem, os } from '@neutralinojs/lib';
+	import { filesystem, os, storage } from '@neutralinojs/lib';
 	import { ModalManager } from '../../svelte-ui/modal/modal-store';
 	import Select from './select.svelte';
 	import { dev } from '$app/environment';
@@ -19,19 +20,12 @@
 	export let height = 155;
 	export let loading = false;
 
-	const personal_stats_cache_key = 'ikusa_logger_personal_family_name';
+	const personal_stats_storage_key = 'personal_family_name';
 	let personal_family_name = '';
 
 	let player_one_index = 0;
 	let player_two_index = 1;
 	let guild_index = 2;
-
-	function calculate_kd(kills: number, deaths: number) {
-		if (deaths === 0) {
-			return kills > 0 ? kills.toFixed(2) : '0.00';
-		}
-		return (kills / deaths).toFixed(2);
-	}
 
 	function update_names(target: 'player_one' | 'player_two' | 'guild', e: Event) {
 		if (target === 'player_one') {
@@ -119,10 +113,6 @@
 
 	$: alliance_overview = logs.reduce(
 		(acc, log) => {
-			const own_member = log.names[player_one_index] || '';
-			const enemy_member = log.names[player_two_index] || '';
-			if (own_member) acc.own.members.add(own_member);
-			if (enemy_member) acc.enemy.members.add(enemy_member);
 			if (log.kill) {
 				acc.own.kills += 1;
 				acc.enemy.deaths += 1;
@@ -133,8 +123,8 @@
 			return acc;
 		},
 		{
-			own: { members: new Set<string>(), kills: 0, deaths: 0 },
-			enemy: { members: new Set<string>(), kills: 0, deaths: 0 }
+			own: { kills: 0, deaths: 0 },
+			enemy: { kills: 0, deaths: 0 }
 		}
 	);
 
@@ -158,15 +148,15 @@
 
 	function update_personal_family_name(value: string) {
 		personal_family_name = value;
-		localStorage.setItem(personal_stats_cache_key, personal_family_name);
+		storage.setData(personal_stats_storage_key, personal_family_name).catch(() => null);
 	}
 
 	function handle_personal_family_name_input(e: Event) {
 		update_personal_family_name((e.currentTarget as HTMLInputElement).value);
 	}
 
-	onMount(() => {
-		personal_family_name = localStorage.getItem(personal_stats_cache_key) || '';
+	onMount(async () => {
+		personal_family_name = await storage.getData(personal_stats_storage_key).catch(() => '');
 	});
 </script>
 

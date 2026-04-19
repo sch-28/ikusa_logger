@@ -14,7 +14,8 @@
 		get_date,
 		get_formatted_date,
 		get_config,
-		hexToString
+		hexToString,
+		calculate_kd
 	} from '../../components/create-config/config';
 	import { filesystem, os, storage } from '@neutralinojs/lib';
 	import { onMount } from 'svelte';
@@ -40,7 +41,6 @@
 
 	let config: Config;
 	let auto_scroll = true;
-	const personal_stats_cache_key = 'ikusa_logger_personal_family_name';
 	const personal_stats_storage_key = 'personal_family_name';
 	let personal_family_name = '';
 
@@ -53,10 +53,7 @@
 			[{ offset: config.guild, count: 1 }]
 		];
 		auto_scroll = config.auto_scroll;
-		const stored_family_name = await storage
-			.getData(personal_stats_storage_key)
-			.catch(() => '');
-		personal_family_name = stored_family_name || localStorage.getItem(personal_stats_cache_key) || '';
+		personal_family_name = await storage.getData(personal_stats_storage_key).catch(() => '');
 	});
 
 	$: {
@@ -293,10 +290,6 @@
 	$: alliance_overview = logs.reduce(
 		(acc, log) => {
 			const is_kill = log.hex[possible_kill_offsets[kill_index]] === '1';
-			const own_member = log.names[player_one_index]?.name || '';
-			const enemy_member = log.names[player_two_index]?.name || '';
-			if (own_member) acc.own.members.add(own_member);
-			if (enemy_member) acc.enemy.members.add(enemy_member);
 			if (is_kill) {
 				acc.own.kills += 1;
 				acc.enemy.deaths += 1;
@@ -307,17 +300,10 @@
 			return acc;
 		},
 		{
-			own: { members: new Set<string>(), kills: 0, deaths: 0 },
-			enemy: { members: new Set<string>(), kills: 0, deaths: 0 }
+			own: { kills: 0, deaths: 0 },
+			enemy: { kills: 0, deaths: 0 }
 		}
 	);
-
-	function calculate_kd(kills: number, deaths: number) {
-		if (deaths === 0) {
-			return kills > 0 ? kills.toFixed(2) : '0.00';
-		}
-		return (kills / deaths).toFixed(2);
-	}
 
 	function parse_log_stats(log: LogType) {
 		if (
@@ -353,7 +339,6 @@
 
 	function update_personal_family_name(value: string) {
 		personal_family_name = value;
-		localStorage.setItem(personal_stats_cache_key, personal_family_name);
 		storage.setData(personal_stats_storage_key, personal_family_name).catch(() => null);
 	}
 
