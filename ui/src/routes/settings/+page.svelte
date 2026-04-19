@@ -54,11 +54,13 @@
 		live_output_path = config.live_output_path || '';
 	});
 
-	const binary_name = NL_OS === 'Windows' ? 'ikusa-logger-win_x64.exe' : './ikusa-logger-linux_x64';
+	function get_binary_name() {
+		return NL_OS === 'Windows' ? 'ikusa-logger-win_x64.exe' : './ikusa-logger-linux_x64';
+	}
 
 	async function restart_dev() {
 		if (dev) return;
-		await os.execCommand(`${binary_name} --window-enable-inspector`, {
+		await os.execCommand(`${get_binary_name()} --window-enable-inspector`, {
 			background: true
 		});
 		app.exit();
@@ -66,7 +68,7 @@
 
 	async function restart_browser() {
 		if (dev) return;
-		await os.execCommand(`${binary_name} --mode=browser`, {
+		await os.execCommand(`${get_binary_name()} --mode=browser`, {
 			background: true
 		});
 		app.exit();
