@@ -90,4 +90,4 @@
 	});
 </script>
 
-<Logger {logs} height={350} />
+<Logger {logs} height={375} />
