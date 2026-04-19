@@ -1,7 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import sys
 
 block_cipher = None
+
+# On non-Windows builds, exclude the Windows-only scapy backend so PyInstaller
+# doesn't choke on it. On Windows, it must be bundled for network sniffing.
+_excludes = [] if sys.platform == 'win32' else ['scapy.arch.windows']
 
 
 a = Analysis(
@@ -13,7 +18,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['scapy.arch.windows'],
+    excludes=_excludes,
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
