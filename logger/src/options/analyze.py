@@ -165,33 +165,32 @@ def open_pcap(file, output, ip_filter=True):
           output}\nYou can close this window now.", flush=True)
 
 
-def read_network_interfaces():
-    if sys.platform == "win32":
-        # Import Windows-specific function
-        from scapy.arch.windows import get_windows_if_list
-        winList = get_windows_if_list()
-        return {e["guid"]: e["name"] for e in winList}
-
-    else:
-        # Use Linux-specific function
-        return {iface: iface for iface in get_if_list()}
-
-
 def start_sniff(output, all_interfaces=True, ip_filter=True):
+    prn = lambda x: package_handler(x, output, ip_filter)
+    sniff_kwargs = {"filter": "tcp", "prn": prn, "store": 0}
+    interfaces = []
+
     try:
         print("Reading Network...", flush=True)
-        guidToNameDict = read_network_interfaces()
-        intfList = get_if_list()
-        namesAllowedList = [guidToNameDict.get(e) for e in intfList]
-        namesAllowedList = list(filter(None, namesAllowedList))
+        interfaces = get_if_list()
+        target = interfaces if (all_interfaces and interfaces) else None
+        print("Network Interfaces: " + ", ".join(interfaces), flush=True)
 
-        sniff(
-            filter="tcp",
-            prn=lambda x: package_handler(x, output, ip_filter),
-            store=0,
-            iface=namesAllowedList if len(
-                namesAllowedList) > 0 and all_interfaces else None,
-        )
+        sniff(**sniff_kwargs, iface=target)
     except Exception as e:
+        if all_interfaces and interfaces:
+            print(
+                "Multi-interface capture failed, falling back to default interface.",
+                flush=True,
+            )
+            print(e, flush=True)
+            try:
+                sniff(**sniff_kwargs, iface=None)
+                return
+            except Exception as fallback_error:
+                print("Error while reading network.", flush=True)
+                print(fallback_error, flush=True)
+                return
+
         print("Error while reading network.", flush=True)
         print(e, flush=True)
