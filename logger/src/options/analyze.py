@@ -165,32 +165,48 @@ def open_pcap(file, output, ip_filter=True):
           output}\nYou can close this window now.", flush=True)
 
 
-def start_sniff(output, all_interfaces=True, ip_filter=True):
-    prn = lambda x: package_handler(x, output, ip_filter)
-    sniff_kwargs = {"filter": "tcp", "prn": prn, "store": 0}
-    interfaces = []
+def read_network_interfaces():
+    if sys.platform == "win32":
+        # Import Windows-specific function
+        from scapy.arch.windows import get_windows_if_list
+        winList = get_windows_if_list()
+        return {e["guid"]: e["name"] for e in winList}
 
+    else:
+        # Use Linux-specific function
+        return {iface: iface for iface in get_if_list()}
+
+
+def _sniff_with_fallback(output, ip_filter, primary_iface, label):
+    sniff_kwargs = {
+        "filter": "tcp",
+        "prn": lambda x: package_handler(x, output, ip_filter),
+        "store": 0,
+    }
     try:
-        print("Reading Network...", flush=True)
-        interfaces = get_if_list()
-        target = interfaces if (all_interfaces and interfaces) else None
-        print("Network Interfaces: " + ", ".join(interfaces), flush=True)
-
-        sniff(**sniff_kwargs, iface=target)
+        sniff(**sniff_kwargs, iface=primary_iface)
     except Exception as e:
-        if all_interfaces and interfaces:
-            print(
-                "Multi-interface capture failed, falling back to default interface.",
-                flush=True,
-            )
-            print(e, flush=True)
-            try:
-                sniff(**sniff_kwargs, iface=None)
-                return
-            except Exception as fallback_error:
-                print("Error while reading network.", flush=True)
-                print(fallback_error, flush=True)
-                return
-
-        print("Error while reading network.", flush=True)
+        print(f"{label} capture failed, falling back to default interface.", flush=True)
         print(e, flush=True)
+        try:
+            sniff(**sniff_kwargs, iface=None)
+        except Exception as fallback_error:
+            print("Error while reading network.", flush=True)
+            print(fallback_error, flush=True)
+
+
+def start_sniff(output, all_interfaces=True, ip_filter=True):
+    print("Reading Network...", flush=True)
+
+    if all_interfaces:
+        # Standard: use scapy's own interface names directly
+        interfaces = get_if_list()
+        print("Network Interfaces: " + ", ".join(interfaces), flush=True)
+        target = interfaces if interfaces else None
+        _sniff_with_fallback(output, ip_filter, target, "Standard")
+    else:
+        # Compatibility: legacy GUID->name mapping (Windows)
+        guidToNameDict = read_network_interfaces()
+        names = list(filter(None, [guidToNameDict.get(e) for e in get_if_list()]))
+        target = names if names else None
+        _sniff_with_fallback(output, ip_filter, target, "Compatibility")
