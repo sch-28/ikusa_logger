@@ -79,10 +79,10 @@
 	<div class="rounded-lg border border-gray-700 p-3 flex items-center justify-between gap-4">
 		<div>
 			<p class="text-sm font-medium">Network Interface</p>
-			<p class="text-xs text-gray-400">Which interface to capture packets from</p>
+			<p class="text-xs text-gray-400">Detection mode. Try Compatibility if no packets are captured.</p>
 		</div>
 		<Select
-			options={['All', 'Default']}
+			options={['Standard', 'Compatibility']}
 			bind:selected_value={selected_interface}
 			on_change={update_interface}
 		/>

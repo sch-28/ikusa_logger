@@ -177,21 +177,36 @@ def read_network_interfaces():
         return {iface: iface for iface in get_if_list()}
 
 
-def start_sniff(output, all_interfaces=True, ip_filter=True):
+def _sniff_with_fallback(output, ip_filter, primary_iface, label):
+    sniff_kwargs = {
+        "filter": "tcp",
+        "prn": lambda x: package_handler(x, output, ip_filter),
+        "store": 0,
+    }
     try:
-        print("Reading Network...", flush=True)
-        guidToNameDict = read_network_interfaces()
-        intfList = get_if_list()
-        namesAllowedList = [guidToNameDict.get(e) for e in intfList]
-        namesAllowedList = list(filter(None, namesAllowedList))
-
-        sniff(
-            filter="tcp",
-            prn=lambda x: package_handler(x, output, ip_filter),
-            store=0,
-            iface=namesAllowedList if len(
-                namesAllowedList) > 0 and all_interfaces else None,
-        )
+        sniff(**sniff_kwargs, iface=primary_iface)
     except Exception as e:
-        print("Error while reading network.", flush=True)
+        print(f"{label} capture failed, falling back to default interface.", flush=True)
         print(e, flush=True)
+        try:
+            sniff(**sniff_kwargs, iface=None)
+        except Exception as fallback_error:
+            print("Error while reading network.", flush=True)
+            print(fallback_error, flush=True)
+
+
+def start_sniff(output, all_interfaces=True, ip_filter=True):
+    print("Reading Network...", flush=True)
+
+    if all_interfaces:
+        # Standard: use scapy's own interface names directly
+        interfaces = get_if_list()
+        print("Network Interfaces: " + ", ".join(interfaces), flush=True)
+        target = interfaces if interfaces else None
+        _sniff_with_fallback(output, ip_filter, target, "Standard")
+    else:
+        # Compatibility: legacy GUID->name mapping (Windows)
+        guidToNameDict = read_network_interfaces()
+        names = list(filter(None, [guidToNameDict.get(e) for e in get_if_list()]))
+        target = names if names else None
+        _sniff_with_fallback(output, ip_filter, target, "Compatibility")
